@@ -1,11 +1,11 @@
-import UserAvatar from "@/components/UserAvatar";
+import UserAvatarMenu from "@/components/UserAvatarMenu";
 
 export default function Help() {
   return (
     <main className="mt-8 mb-8 max-w-2xl mx-auto">
       <div className="flex space-between w-full">
         <h1 className="text-4xl mr-auto font-bold mb-6">Help &amp; FAQ</h1>
-        <UserAvatar size={48} />
+        <UserAvatarMenu size={48} />
       </div>
 
       <section className="mb-8">
