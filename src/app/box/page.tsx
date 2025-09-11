@@ -55,10 +55,10 @@ export default function Box() {
         {error && <div className="text-red-600">{error}</div>}
 
         {/* Floating Action Button with Menu */}
-        <div className="fixed bottom-6 right-6 z-50">
+        <div className="fixed bottom-22 right-6 z-50">
           <Button
             size="icon"
-            className="cursor-pointer fixed bottom-22 right-6 w-12 h-12 rounded-full bg-green-600 text-white shadow-lg hover:bg-green-700 focus:outline-none transition-all duration-200 ease-out hover:scale-110"
+            className="cursor-pointer w-12 h-12 rounded-full bg-green-600 text-white shadow-lg hover:bg-green-700 focus:outline-none transition-all duration-200 ease-out hover:scale-110"
             style={{ fontSize: 28 }}
             aria-label="Actions"
             onClick={() => setMenuOpen((open) => !open)}
@@ -67,31 +67,34 @@ export default function Box() {
           </Button>
 
           {menuOpen && (
-            <div className="absolute bottom-30 right-0 bg-white border rounded-lg shadow-lg py-2 w-48 animate-fade-in">
-              <button
-                className="flex items-center w-full px-4 py-2 text-red-600 hover:bg-gray-100"
+            <div className="absolute bottom-14 right-0 bg-white border rounded-lg shadow-lg py-2 w-48 animate-fade-in">
+              <Button
+                variant="ghost"
+                className="flex items-center w-full px-4 py-2 text-right text-red-600 hover:bg-gray-100 justify-end text-right"
                 onClick={() => {
                   setMenuOpen(false); /* TODO: Delete box logic */
                 }}
               >
-                <Trash2 className="mr-2" size={18} /> Delete box
-              </button>
-              <button
-                className="flex items-center w-full px-4 py-2 text-gray-800 hover:bg-gray-100"
+                Delete box <Trash2 className="mr-2" size={18} />
+              </Button>
+              <Button
+                variant="ghost"
+                className="flex items-center w-full px-4 py-2 text-right text-gray-800 hover:bg-gray-100 justify-end text-right"
                 onClick={() => {
                   setMenuOpen(false); /* TODO: Edit box details logic */
                 }}
               >
-                <Pencil className="mr-2" size={18} /> Edit box details
-              </button>
-              <button
-                className="flex items-center w-full px-4 py-2 text-green-700 hover:bg-gray-100"
+                Edit box details <Pencil className="mr-2" size={18} />
+              </Button>
+              <Button
+                variant="ghost"
+                className="flex items-center w-full px-4 py-2 text-right text-green-700 hover:bg-gray-100 justify-end text-right"
                 onClick={() => {
                   setMenuOpen(false); /* TODO: Add item logic */
                 }}
               >
-                <Plus className="mr-2" size={18} /> Add item
-              </button>
+                Add item <Plus className="mr-2" size={18} />
+              </Button>
             </div>
           )}
         </div>
