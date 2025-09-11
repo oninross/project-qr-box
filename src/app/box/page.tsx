@@ -3,6 +3,8 @@
 import { useSearchParams } from "next/navigation";
 import RequireAuth from "@/components/RequireAuth";
 import UserAvatar from "@/components/UserAvatar";
+import { MoreVertical, Trash2, Pencil, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
@@ -20,6 +22,7 @@ export default function Box() {
   const boxIdString = boxId as string;
   const [box, setBox] = useState<Box | null>(null);
   const [error, setError] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     async function fetchBox() {
@@ -47,9 +50,51 @@ export default function Box() {
           <UserAvatar size={48} />
         </div>
 
-        {box?.description || <p className="text-gray-400">{box?.description}</p>}
+        {box?.description && <p className="text-gray-400">{box?.description}</p>}
 
-        {error || <div className="text-red-600">{error}</div>}
+        {error && <div className="text-red-600">{error}</div>}
+
+        {/* Floating Action Button with Menu */}
+        <div className="fixed bottom-6 right-6 z-50">
+          <Button
+            size="icon"
+            className="cursor-pointer fixed bottom-22 right-6 w-12 h-12 rounded-full bg-green-600 text-white shadow-lg hover:bg-green-700 focus:outline-none transition-all duration-200 ease-out hover:scale-110"
+            style={{ fontSize: 28 }}
+            aria-label="Actions"
+            onClick={() => setMenuOpen((open) => !open)}
+          >
+            <MoreVertical />
+          </Button>
+
+          {menuOpen && (
+            <div className="absolute bottom-30 right-0 bg-white border rounded-lg shadow-lg py-2 w-48 animate-fade-in">
+              <button
+                className="flex items-center w-full px-4 py-2 text-red-600 hover:bg-gray-100"
+                onClick={() => {
+                  setMenuOpen(false); /* TODO: Delete box logic */
+                }}
+              >
+                <Trash2 className="mr-2" size={18} /> Delete box
+              </button>
+              <button
+                className="flex items-center w-full px-4 py-2 text-gray-800 hover:bg-gray-100"
+                onClick={() => {
+                  setMenuOpen(false); /* TODO: Edit box details logic */
+                }}
+              >
+                <Pencil className="mr-2" size={18} /> Edit box details
+              </button>
+              <button
+                className="flex items-center w-full px-4 py-2 text-green-700 hover:bg-gray-100"
+                onClick={() => {
+                  setMenuOpen(false); /* TODO: Add item logic */
+                }}
+              >
+                <Plus className="mr-2" size={18} /> Add item
+              </button>
+            </div>
+          )}
+        </div>
       </main>
     </RequireAuth>
   );
