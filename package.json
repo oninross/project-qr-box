@@ -15,8 +15,11 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@radix-ui/react-slot": "^1.2.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "firebase": "^10.12.2",
+    "firebaseui": "^6.1.0",
     "lucide-react": "^0.543.0",
     "next": "15.5.3",
     "react": "19.1.0",
