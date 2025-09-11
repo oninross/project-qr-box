@@ -33,18 +33,20 @@ export default function UserAvatar({ size = 48 }: { size?: number }) {
   }
 
   const photoURL = user.photoURL;
-  const displayName = user.displayName || user.email || "?";
+  const displayName = user.displayName || user.email || "";
   const fallback = displayName.charAt(0).toUpperCase();
 
   if (photoURL) {
-    <Image
-      src={photoURL}
-      alt={displayName}
-      width={size}
-      height={size}
-      className="rounded-full object-cover"
-      style={{ width: size, height: size }}
-    />;
+    return (
+      <Image
+        src={photoURL}
+        alt={displayName}
+        width={size}
+        height={size}
+        className="rounded-full object-cover"
+        style={{ width: size, height: size }}
+      />
+    );
   }
 
   return (
