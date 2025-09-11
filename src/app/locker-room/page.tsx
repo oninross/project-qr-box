@@ -4,6 +4,7 @@ import UserAvatarMenu from "@/components/UserAvatarMenu";
 import RequireAuth from "@/components/RequireAuth";
 import { useRouter } from "next/navigation";
 import { PackageOpen } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function LockerRoom() {
   const router = useRouter();
@@ -15,14 +16,15 @@ export default function LockerRoom() {
           <UserAvatarMenu size={48} />
         </div>
 
-        <button
-          className="cursor-pointer fixed bottom-22 right-6 w-12 h-12 leading-none rounded-full bg-green-600 text-white flex items-center justify-center shadow-lg hover:bg-green-700 focus:outline-none z-50 transition-all duration-200 ease-out hover:scale-110"
+        <Button
+          size="icon"
+          className="fixed bottom-22 right-6 w-12 h-12 rounded-full bg-green-600 text-white shadow-lg hover:bg-green-700 focus:outline-none z-50 transition-all duration-200 ease-out hover:scale-110"
           style={{ fontSize: 28 }}
           aria-label="Add"
           onClick={() => router.push("/new-box")}
         >
           <PackageOpen />
-        </button>
+        </Button>
       </main>
     </RequireAuth>
   );

@@ -5,6 +5,7 @@ import { auth } from "@/lib/firebase";
 
 import { usePathname, useRouter } from "next/navigation";
 import { Box, HelpCircle, PackageOpen, ScanQrCode } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const navItems = [
   { label: "Locker Room", path: "/locker-room", icon: PackageOpen },
@@ -31,8 +32,9 @@ export default function GlobalNav() {
           const Icon = item.icon;
           return (
             <li key={item.path}>
-              <button
-                className={`cursor-pointer flex flex-col items-center gap-1 px-4 py-2 rounded font-medium transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-primary/50 ${
+              <Button
+                variant="ghost"
+                className={`flex flex-col items-center gap-1 px-4 py-2 rounded font-medium transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-primary/50 ${
                   pathname === item.path
                     ? "text-primary dark:text-primary-400"
                     : "text-zinc-600 dark:text-zinc-300 hover:text-primary dark:hover:text-primary-400"
@@ -42,7 +44,7 @@ export default function GlobalNav() {
               >
                 <Icon size={22} />
                 <span className="text-xs">{item.label}</span>
-              </button>
+              </Button>
             </li>
           );
         })}

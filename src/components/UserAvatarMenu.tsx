@@ -4,6 +4,7 @@ import { onAuthStateChanged, signOut, User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 export default function UserAvatarMenu({ size = 48 }: { size?: number }) {
   const [user, setUser] = useState<User | null>(null);
@@ -47,11 +48,12 @@ export default function UserAvatarMenu({ size = 48 }: { size?: number }) {
 
   return (
     <div className="relative inline-block" ref={menuRef}>
-      <button
+      <Button
+        variant="ghost"
         aria-label="Open user menu"
         onClick={() => setOpen((v) => !v)}
-        className="focus:outline-none"
-        style={{ width: size, height: size }}
+        className="p-0 focus:outline-none"
+        style={{ width: size, height: size, borderRadius: "9999px" }}
       >
         {photoURL ? (
           <Image
@@ -70,10 +72,11 @@ export default function UserAvatarMenu({ size = 48 }: { size?: number }) {
             {fallback}
           </div>
         )}
-      </button>
+      </Button>
       {open && (
         <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded shadow-lg z-50">
-          {/* <button
+          <Button
+            variant="ghost"
             className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800"
             onClick={() => {
               setOpen(false);
@@ -81,8 +84,9 @@ export default function UserAvatarMenu({ size = 48 }: { size?: number }) {
             }}
           >
             Profile
-          </button> */}
-          <button
+          </Button>
+          <Button
+            variant="ghost"
             className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-800"
             onClick={async () => {
               setOpen(false);
@@ -90,7 +94,7 @@ export default function UserAvatarMenu({ size = 48 }: { size?: number }) {
             }}
           >
             Logout
-          </button>
+          </Button>
         </div>
       )}
     </div>
