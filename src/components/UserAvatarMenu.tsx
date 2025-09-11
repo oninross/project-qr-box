@@ -38,14 +38,7 @@ export default function UserAvatarMenu({ size = 48 }: { size?: number }) {
   }, [open]);
 
   if (!user) {
-    return (
-      <div
-        style={{ width: size, height: size }}
-        className="rounded-full bg-gray-300 flex items-center justify-center text-xl font-bold text-gray-600"
-      >
-        ?
-      </div>
-    );
+    return null;
   }
 
   const photoURL = user.photoURL;
