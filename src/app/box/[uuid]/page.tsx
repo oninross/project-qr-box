@@ -1,6 +1,6 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import RequireAuth from "@/components/RequireAuth";
 import UserAvatar from "@/components/UserAvatar";
 import { useEffect, useState } from "react";
@@ -13,10 +13,10 @@ interface Box {
   // Add other fields as needed
 }
 
-export default function BoxDetail() {
-  const params = useSearchParams();
-  const boxId = params.get("boxId");
-  const boxCode = params.get("boxCode");
+  const params = useParams();
+  const searchParams = useSearchParams();
+  const uuid = params.uuid as string;
+  const boxCode = searchParams.get("boxCode");
   const [box, setBox] = useState<Box | null>(null);
   const [error, setError] = useState("");
 
@@ -24,7 +24,7 @@ export default function BoxDetail() {
     async function fetchBox() {
       setError("");
       try {
-        const docRef = doc(db, "boxes", boxId as string);
+        const docRef = doc(db, "boxes", uuid);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           setBox(docSnap.data());
@@ -35,8 +35,8 @@ export default function BoxDetail() {
         setError("Failed to load box details.");
       }
     }
-    if (boxId as string) fetchBox();
-  }, [boxId as string]);
+    if (uuid) fetchBox();
+  }, [uuid]);
 
   return (
     <RequireAuth>
@@ -45,10 +45,13 @@ export default function BoxDetail() {
           <h1 className="text-4xl mr-auto font-bold">{box?.name}</h1>
           <UserAvatar size={48} />
         </div>
-
-        {box?.description || <p className="text-gray-400">{box?.description}</p>}
-
-        {error || <div className="text-red-600">{error}</div>}
+        <div className="mb-2 text-sm text-gray-500">Box Code: <span className="font-mono">{boxCode}</span></div>
+        {box?.description ? (
+          <div>{box.description}</div>
+        ) : (
+          <p className="text-gray-400">No description</p>
+        )}
+        {error && <div className="text-red-600">{error}</div>}
       </main>
     </RequireAuth>
   );

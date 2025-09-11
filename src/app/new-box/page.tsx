@@ -67,7 +67,7 @@ export default function AddBox() {
         });
         toast.success("Box created successfully!");
         setTimeout(() => {
-          router.push(`/box/boxId=${docRef.id}&boxCode=${boxCode}`);
+          router.push(`/box?boxId=${docRef.id}&boxCode=${boxCode}`);
         }, 3000);
       } catch {
         setError("Failed to save box. Please try again.");
