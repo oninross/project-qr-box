@@ -5,23 +5,78 @@ import RequireAuth from "@/components/RequireAuth";
 import { ArchiveRestore } from "lucide-react";
 
 import React, { useState } from "react";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { db, auth } from "@/lib/firebase";
+import { addDoc, collection, Timestamp } from "firebase/firestore";
+import { useCallback } from "react";
 
 export default function AddBox() {
   const [boxName, setBoxName] = useState("");
   const [boxDescription, setBoxDescription] = useState("");
   const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
 
-  function handleSave(e: React.FormEvent) {
-    e.preventDefault();
-    if (boxName.trim().length < 3) {
-      setError("Box Name must be at least 3 characters.");
-      return;
+  const router = useRouter();
+
+  async function generateUniqueBoxCode() {
+    // Try up to 10 times to avoid infinite loop
+    for (let i = 0; i < 10; i++) {
+      const code = Math.floor(Math.random() * 999) + 1;
+      // Check with API if code exists
+      const res = await fetch("/api/boxCodeExists", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ boxCode: code }),
+      });
+      const data = await res.json();
+      if (!data.exists) return code;
     }
-    setError("");
-    // TODO: Save logic here
-    alert("Box saved!");
+    return null;
   }
+
+  const handleSave = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (boxName.trim().length < 3) {
+        setError("Box Name must be at least 3 characters.");
+        return;
+      }
+      setError("");
+      setSaving(true);
+      try {
+        const user = auth.currentUser;
+        if (!user) {
+          setError("You must be logged in.");
+          setSaving(false);
+          return;
+        }
+        const boxCode = await generateUniqueBoxCode();
+        if (!boxCode) {
+          setError("Could not generate a unique box code. Please try again.");
+          setSaving(false);
+          return;
+        }
+        const docRef = await addDoc(collection(db, "boxes"), {
+          name: boxName.trim(),
+          description: boxDescription.trim(),
+          createdAt: Timestamp.now(),
+          userId: user.uid,
+          boxCode,
+        });
+        toast.success("Box created successfully!");
+        setTimeout(() => {
+          router.push(`/box/boxId=${docRef.id}&boxCode=${boxCode}`);
+        }, 3000);
+      } catch {
+        setError("Failed to save box. Please try again.");
+      } finally {
+        setSaving(false);
+      }
+    },
+    [boxName, boxDescription, router]
+  );
 
   return (
     <RequireAuth>
@@ -45,6 +100,7 @@ export default function AddBox() {
               required
               value={boxName}
               onChange={(e) => setBoxName(e.target.value)}
+              disabled={saving}
             />
             {error && <p className="text-red-600 text-sm mt-1">{error}</p>}
           </div>
@@ -60,6 +116,7 @@ export default function AddBox() {
               rows={3}
               value={boxDescription}
               onChange={(e) => setBoxDescription(e.target.value)}
+              disabled={saving}
             />
           </div>
           {/* Floating Action Button */}
@@ -69,6 +126,7 @@ export default function AddBox() {
             className="fixed bottom-22 right-6 w-12 h-12 rounded-full bg-green-600 text-white shadow-lg hover:bg-green-700 focus:outline-none z-50 transition-all duration-200 ease-out hover:scale-110"
             style={{ fontSize: 28 }}
             aria-label="Add"
+            disabled={saving}
           >
             <ArchiveRestore />
           </Button>

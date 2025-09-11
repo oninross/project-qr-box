@@ -1,19 +1,80 @@
 "use client";
 
 import UserAvatarMenu from "@/components/UserAvatarMenu";
+
 import RequireAuth from "@/components/RequireAuth";
 import { useRouter } from "next/navigation";
 import { PackageOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
+import { db, auth } from "@/lib/firebase";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { onAuthStateChanged, User } from "firebase/auth";
+
+type Box = {
+  id: string;
+  name?: string;
+  boxCode?: string;
+  userId?: string;
+  // Add other fields as needed
+};
 
 export default function LockerRoom() {
   const router = useRouter();
+  const [boxes, setBoxes] = useState<Box[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user: User | null) => {
+      setLoading(true);
+      setError("");
+      if (!user) {
+        setBoxes([]);
+        setLoading(false);
+        return;
+      }
+      try {
+        const q = query(collection(db, "boxes"), where("userId", "==", user.uid));
+        const snap = await getDocs(q);
+        setBoxes(snap.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+      } catch {
+        setError("Failed to load your boxes.");
+      } finally {
+        setLoading(false);
+      }
+    });
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, []);
+
   return (
     <RequireAuth>
       <main className="mt-8 w-full m-auto max-w-2xl">
         <div className="flex space-between w-full">
           <h1 className="text-4xl mr-auto font-bold">Locker Room</h1>
           <UserAvatarMenu size={48} />
+        </div>
+
+        <div className="mt-8 space-y-4">
+          {loading && <div className="text-gray-500">Loading your boxes...</div>}
+          {error && <div className="text-red-600">{error}</div>}
+          {!loading && !error && boxes.length === 0 && (
+            <div className="text-gray-400">No boxes found. Click the + to add one!</div>
+          )}
+          {!loading &&
+            !error &&
+            boxes.map((box) => (
+              <div
+                key={box.id}
+                className="border rounded-lg p-4 shadow hover:shadow-lg transition cursor-pointer bg-white"
+                onClick={() => router.push(`/box/boxId=${box.id}&boxCode=${box.boxCode}`)}
+              >
+                <div className="font-bold text-lg">{box.name}</div>
+                {/* Add more box details here if needed */}
+              </div>
+            ))}
         </div>
 
         <Button
