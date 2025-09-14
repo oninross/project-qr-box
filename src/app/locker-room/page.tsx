@@ -1,7 +1,6 @@
 "use client";
 
 import UserAvatarMenu from "@/components/UserAvatarMenu";
-
 import RequireAuth from "@/components/RequireAuth";
 import { useRouter } from "next/navigation";
 import { PackageOpen } from "lucide-react";
@@ -10,6 +9,7 @@ import { useEffect, useState } from "react";
 import { db, auth } from "@/lib/firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { onAuthStateChanged, User } from "firebase/auth";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 type Box = {
   id: string;
@@ -59,21 +59,27 @@ export default function LockerRoom() {
 
         <div className="mt-8 space-y-4">
           {loading && <div className="text-gray-500">Loading your boxes...</div>}
+
           {error && <div className="text-red-600">{error}</div>}
+
           {!loading && !error && boxes.length === 0 && (
-            <div className="text-gray-400">No boxes found. Click the + to add one!</div>
+            <p className="flex gap-1 text-gray-400">
+              No boxes found. Click <PackageOpen /> to add one!
+            </p>
           )}
+
           {!loading &&
             !error &&
             boxes.map((box) => (
-              <div
+              <Card
                 key={box.id}
-                className="border rounded-lg p-4 shadow hover:shadow-lg transition cursor-pointer bg-white"
+                className="cursor-pointer rounded-sm hover:shadow-lg transition"
                 onClick={() => router.push(`/box/boxId=${box.id}&boxCode=${box.boxCode}`)}
               >
-                <div className="font-bold text-lg">{box.name}</div>
-                {/* Add more box details here if needed */}
-              </div>
+                <CardHeader>
+                  <CardTitle>{box.name}</CardTitle>
+                </CardHeader>
+              </Card>
             ))}
         </div>
 
