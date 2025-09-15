@@ -4,7 +4,7 @@ import RequireAuth from "@/components/RequireAuth";
 export default function Help() {
   return (
     <RequireAuth>
-      <main className="mt-8 mb-8 max-w-2xl mx-auto">
+      <main className="mt-8 mb-8 max-w-2xl mx-auto px-6">
         <div className="flex space-between w-full">
           <h1 className="text-4xl mr-auto font-bold mb-6">Help &amp; FAQ</h1>
           <UserAvatarMenu size={48} />

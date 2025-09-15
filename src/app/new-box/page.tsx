@@ -80,7 +80,7 @@ export default function AddBox() {
 
   return (
     <RequireAuth>
-      <main className="mt-8 w-full m-auto max-w-2xl">
+      <main className="mt-8 w-full m-auto max-w-2xl px-6">
         <div className="flex space-between w-full">
           <h1 className="text-4xl mr-auto font-bold">New Box</h1>
           <UserAvatarMenu size={48} />
@@ -95,7 +95,7 @@ export default function AddBox() {
               id="boxName"
               name="boxName"
               type="text"
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="bg-white w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
               placeholder="Enter box name"
               required
               value={boxName}
@@ -111,7 +111,7 @@ export default function AddBox() {
             <textarea
               id="boxDescription"
               name="boxDescription"
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="bg-white w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
               placeholder="Describe the box (optional)"
               rows={3}
               value={boxDescription}

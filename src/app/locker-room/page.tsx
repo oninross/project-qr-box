@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 import { db, auth } from "@/lib/firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { onAuthStateChanged, User } from "firebase/auth";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 
 type Box = {
   id: string;
@@ -51,7 +51,7 @@ export default function LockerRoom() {
 
   return (
     <RequireAuth>
-      <main className="mt-8 w-full m-auto max-w-2xl">
+      <main className="mt-8 w-full m-auto max-w-2xl px-6">
         <div className="flex space-between w-full">
           <h1 className="text-4xl mr-auto font-bold">Locker Room</h1>
           <UserAvatarMenu size={48} />
@@ -74,7 +74,7 @@ export default function LockerRoom() {
               <Card
                 key={box.id}
                 className="cursor-pointer rounded-sm hover:shadow-lg transition"
-                onClick={() => router.push(`/box/boxId=${box.id}&boxCode=${box.boxCode}`)}
+                onClick={() => router.push(`/box?boxId=${box.id}&boxCode=${box.boxCode}`)}
               >
                 <CardHeader>
                   <CardTitle>{box.name}</CardTitle>
