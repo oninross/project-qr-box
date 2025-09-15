@@ -1,13 +1,20 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import RequireAuth from "@/components/RequireAuth";
 import UserAvatar from "@/components/UserAvatar";
 import { MoreVertical, Trash2, Pencil, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, deleteDoc, collection, getDocs } from "firebase/firestore";
 
 interface Box {
   name?: string;
@@ -17,12 +24,17 @@ interface Box {
 
 export default function Box() {
   const params = useSearchParams();
+  const router = useRouter();
   const boxId = params.get("boxId");
   const boxCode = params.get("boxCode");
   const boxIdString = boxId as string;
   const [box, setBox] = useState<Box | null>(null);
   const [error, setError] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  // Add a loading state for deletion
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     async function fetchBox() {
@@ -42,9 +54,33 @@ export default function Box() {
     if (boxIdString) fetchBox();
   }, [boxIdString]);
 
+  // Delete box and its items
+  async function handleDeleteBox() {
+    if (!boxIdString) return;
+    setDeleting(true);
+    try {
+      // Delete all items in the box (assuming a subcollection "items")
+      const itemsRef = collection(db, "boxes", boxIdString, "items");
+      const itemsSnap = await getDocs(itemsRef);
+      const deletePromises = itemsSnap.docs.map((itemDoc) => deleteDoc(itemDoc.ref));
+      await Promise.all(deletePromises);
+
+      // Delete the box document itself
+      await deleteDoc(doc(db, "boxes", boxIdString));
+
+      // Optionally, redirect or show a toast
+      window.location.href = "/locker-room";
+    } catch (err) {
+      setError("Failed to delete box. Please try again.");
+    } finally {
+      setDeleting(false);
+      setShowDeleteModal(false);
+    }
+  }
+
   return (
     <RequireAuth>
-      <main className="mt-8 w-full m-auto max-w-2xl">
+      <main className="mt-8 w-full m-auto max-w-2xl px-6">
         <div className="flex space-between w-full">
           <h1 className="text-4xl mr-auto font-bold">{box?.name}</h1>
           <UserAvatar size={48} />
@@ -72,7 +108,8 @@ export default function Box() {
                 variant="ghost"
                 className="flex items-center w-full px-4 py-2 text-right text-red-600 hover:bg-gray-100 justify-end text-right"
                 onClick={() => {
-                  setMenuOpen(false); /* TODO: Delete box logic */
+                  setMenuOpen(false);
+                  setShowDeleteModal(true);
                 }}
               >
                 Delete box <Trash2 className="mr-2" size={18} />
@@ -81,10 +118,11 @@ export default function Box() {
                 variant="ghost"
                 className="flex items-center w-full px-4 py-2 text-right text-gray-800 hover:bg-gray-100 justify-end text-right"
                 onClick={() => {
-                  setMenuOpen(false); /* TODO: Edit box details logic */
+                  setMenuOpen(false); /* TODO: View box details logic */
+                  router.push(`/box-detail?boxId=${boxId}&boxCode=${boxCode}`);
                 }}
               >
-                Edit box details <Pencil className="mr-2" size={18} />
+                View box details <Pencil className="mr-2" size={18} />
               </Button>
               <Button
                 variant="ghost"
@@ -98,6 +136,31 @@ export default function Box() {
             </div>
           )}
         </div>
+
+        {/* Delete Modal */}
+        <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Delete Box</DialogTitle>
+            </DialogHeader>
+            <p className="py-4">
+              Deleting this box will permanently remove all stored items and photos linked to it.
+              This action cannot be undone. Do you wish to continue?
+            </p>
+            <DialogFooter>
+              <Button
+                variant="secondary"
+                onClick={() => setShowDeleteModal(false)}
+                disabled={deleting}
+              >
+                Cancel
+              </Button>
+              <Button variant="destructive" onClick={handleDeleteBox} disabled={deleting}>
+                {deleting ? "Deleting..." : "Delete"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </main>
     </RequireAuth>
   );
