@@ -15,10 +15,21 @@ import {
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, deleteDoc, collection, getDocs } from "firebase/firestore";
+import { Card, CardContent } from "@/components/ui/card";
+import Image from "next/image";
 
 interface Box {
   name?: string;
   description?: string;
+  // Add other fields as needed
+}
+
+interface Item {
+  id: string;
+  name: string;
+  description: string;
+  image?: string;
+  boxId?: string;
   // Add other fields as needed
 }
 
@@ -35,6 +46,8 @@ export default function Box() {
 
   // Add a loading state for deletion
   const [deleting, setDeleting] = useState(false);
+  const [items, setItems] = useState<Item[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchBox() {
@@ -51,7 +64,28 @@ export default function Box() {
         setError("Failed to load box details.");
       }
     }
-    if (boxIdString) fetchBox();
+
+    async function fetchItems() {
+      try {
+        const itemsRef = collection(db, "items");
+        const itemsSnap = await getDocs(itemsRef);
+        // Filter items by boxId
+        const filteredItems: Item[] = itemsSnap.docs
+          .map((doc) => ({ id: doc.id, ...doc.data() }) as Item)
+          .filter((item) => item.boxId === boxIdString);
+        setItems(filteredItems);
+      } catch {
+        // Optionally handle error
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (boxIdString) {
+      setLoading(true);
+      fetchBox();
+      fetchItems();
+    }
   }, [boxIdString]);
 
   // Delete box and its items
@@ -86,9 +120,45 @@ export default function Box() {
           <UserAvatar size={48} />
         </div>
 
-        {box?.description && <p className="text-gray-400">{box?.description}</p>}
+        {box?.description && <p className="text-gray-400 mb-4">{box?.description}</p>}
 
-        {error && <div className="text-red-600">{error}</div>}
+        {error && <p className="text-red-600 mb-4">{error}</p>}
+
+        {/* Loading, Empty, or Cards */}
+        {loading ? (
+          <p>Opening your box</p>
+        ) : items.length === 0 ? (
+          <p>Your box is currently empty</p>
+        ) : (
+          <div className="flex flex-wrap gap-4 mb-8">
+            {items.map((item) => (
+              <Card
+                key={item.id}
+                onClick={() =>
+                  router.push(`/item?boxId=${boxId}&boxCode=${boxCode}&itemId=${item.id}`)
+                }
+                className="flex flex-row items-center gap-4 p-4 border rounded shadow-sm bg-white w-full cursor-pointer hover:shadow-md transition"
+                style={{ outline: "none" }}
+                role="button"
+                tabIndex={0}
+              >
+                {item.image && (
+                  <Image
+                    src={item.image}
+                    alt={item.name}
+                    width={400}
+                    height={200}
+                    className="w-20 h-20 object-cover rounded"
+                  />
+                )}
+
+                <CardContent>
+                  <p className="font-semibold">{item.name}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
 
         {/* Floating Action Button with Menu */}
         <div className="fixed bottom-22 right-6 z-50">
@@ -128,7 +198,8 @@ export default function Box() {
                 variant="ghost"
                 className="flex items-center w-full px-4 py-2 text-right text-green-700 hover:bg-gray-100 justify-end text-right"
                 onClick={() => {
-                  setMenuOpen(false); /* TODO: Add item logic */
+                  setMenuOpen(false);
+                  router.push(`/add-item?boxId=${boxId}&boxCode=${boxCode}`);
                 }}
               >
                 Add item <Plus className="mr-2" size={18} />
