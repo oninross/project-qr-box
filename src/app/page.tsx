@@ -1,9 +1,10 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import FirebaseAuthUI from "@/components/FirebaseAuthUI";
+const FirebaseAuthUI = dynamic(() => import("@/components/FirebaseAuthUI"), { ssr: false });
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 export default function Home() {
