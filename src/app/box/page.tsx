@@ -4,7 +4,7 @@ import { doc, getDoc, deleteDoc, collection, getDocs } from "firebase/firestore"
 import { MoreVertical, Trash2, Pencil, Plus } from "lucide-react";
 import Image from "next/image";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 import Breadcrumbs from "@/components/Breadcrumbs";
 import RequireAuth from "@/components/RequireAuth";
@@ -35,7 +35,7 @@ interface Item {
   // Add other fields as needed
 }
 
-export default function Box() {
+function BoxComponent() {
   const params = useSearchParams();
   const router = useRouter();
   const boxId = params.get("boxId");
@@ -242,5 +242,13 @@ export default function Box() {
         </Dialog>
       </main>
     </RequireAuth>
+  );
+}
+
+export default function BoxPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <BoxComponent />
+    </Suspense>
   );
 }
