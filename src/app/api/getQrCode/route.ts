@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
   );
 
   // Draw QR code in the center
-  const qrUrl = `https://qr-box.firebaseapp.com/pages/box/?boxId=${boxId}&boxCode=${boxCode}`;
+  const qrUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/box/?boxId=${boxId}&boxCode=${boxCode}`;
   const qrDataUrl = await QRCode.toDataURL(qrUrl);
   const qrImg = await loadImage(qrDataUrl);
   const qrSize = 104;
