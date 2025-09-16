@@ -1,9 +1,11 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import GlobalNav from "@/components/GlobalNav";
-
-import SessionTimeoutClient from "@/components/SessionTimeoutClient";
 import { Toaster } from "sonner";
+
+import GlobalNav from "@/components/GlobalNav";
+import SessionTimeoutClient from "@/components/SessionTimeoutClient";
+
+import "./globals.css";
+
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "QR Box",

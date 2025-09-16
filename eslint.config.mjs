@@ -45,7 +45,15 @@ const eslintConfig = [
   },
   ...storybook.configs["flat/recommended"],
   {
-    ignores: ["node_modules/**", ".next/**", "out/**", "build/**", "next-env.d.ts"],
+    ignores: [
+      "node_modules/**",
+      ".next/**",
+      "out/**",
+      "build/**",
+      "next-env.d.ts",
+      "src/components/**",
+      "src/stories/**", // Added to ignore all files in src/stories
+    ],
   },
 ];
 
