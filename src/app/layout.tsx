@@ -3,6 +3,7 @@ import "./globals.css";
 import GlobalNav from "@/components/GlobalNav";
 
 import SessionTimeoutClient from "@/components/SessionTimeoutClient";
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: "QR Box",
@@ -21,6 +22,8 @@ export default function RootLayout({
         <SessionTimeoutClient />
         {children}
         <GlobalNav />
+
+        <Toaster richColors position="bottom-left" />
       </body>
     </html>
   );
