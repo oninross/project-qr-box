@@ -1,46 +1,88 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import RequireAuth from "@/components/RequireAuth";
+import { Html5Qrcode } from "html5-qrcode";
+import { toast, Toaster } from "sonner";
 
 export default function Scan() {
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const scannerId = "qr-scanner";
 
   useEffect(() => {
-    async function enableCamera() {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "environment" },
-        });
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
-      } catch (err) {
-        alert("Could not access camera: " + (err instanceof Error ? err.message : err));
-      }
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+    if (!baseUrl) {
+      toast.error("Missing NEXT_PUBLIC_BASE_URL environment variable.");
+      return;
     }
-    enableCamera();
 
-    // Capture the current value of videoRef.current
-    const currentVideo = videoRef.current;
+    let html5QrCode: Html5Qrcode | null = null;
+    let cancelled = false;
+    let hasScanned = false;
+
+    function startScanner() {
+      const el = document.getElementById(scannerId);
+      if (!el) {
+        setTimeout(startScanner, 100);
+        return;
+      }
+
+      html5QrCode = new Html5Qrcode(scannerId);
+
+      html5QrCode
+        .start(
+          { facingMode: "environment" },
+          {
+            fps: 10,
+            qrbox: (viewfinderWidth, viewfinderHeight) => {
+              const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+              const boxSize = Math.floor(minEdge * 0.8);
+              return { width: boxSize, height: boxSize };
+            },
+            aspectRatio: window.innerWidth / window.innerHeight,
+          },
+          async (decodedText) => {
+            if (hasScanned) return;
+            if (decodedText.includes(baseUrl as string)) {
+              hasScanned = true;
+              if (html5QrCode) {
+                await html5QrCode.stop().catch(() => {});
+              }
+              toast.success(`Redirecting to ${decodedText}`);
+              setTimeout(() => {
+                window.location.href = decodedText;
+              }, 1200);
+            }
+          },
+          (err) => {
+            // Optional: handle scan errors
+          }
+        )
+        .catch((err) => {
+          if (!cancelled) toast.error("Could not access camera: " + err);
+        });
+    }
+
+    if (typeof window !== "undefined") {
+      startScanner();
+    }
 
     return () => {
-      if (currentVideo && currentVideo.srcObject) {
-        const tracks = (currentVideo.srcObject as MediaStream).getTracks();
-        tracks.forEach((track) => track.stop());
+      cancelled = true;
+      if (html5QrCode) {
+        html5QrCode.stop().catch(() => {});
+        try {
+          html5QrCode.clear();
+        } catch {}
       }
     };
   }, []);
 
   return (
     <RequireAuth>
-      <div className="fixed inset-0 w-full h-full bg-black flex items-center justify-center">
-        <video
-          ref={videoRef}
-          autoPlay
-          playsInline
-          muted
-          className="w-full h-full object-cover"
-          style={{ background: "black" }}
+      <div className="fixed inset-0 w-full h-full bg-black flex flex-col items-center justify-center">
+        <div
+          id={scannerId}
+          className="absolute inset-0 w-full h-full bg-black"
+          style={{ zIndex: 10 }}
         />
       </div>
     </RequireAuth>
