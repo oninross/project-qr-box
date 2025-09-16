@@ -34,7 +34,7 @@ export default function GlobalNav() {
             <li key={item.path}>
               <Button
                 variant="ghost"
-                className={`flex flex-col items-center gap-1 px-4 py-2 rounded font-medium transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-primary/50 ${
+                className={`flex flex-col items-center gap-1 px-4 py-2 w-32 rounded font-medium transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-primary/50 ${
                   pathname === item.path
                     ? "text-primary dark:text-primary-400"
                     : "text-zinc-600 dark:text-zinc-300 hover:text-primary dark:hover:text-primary-400"
