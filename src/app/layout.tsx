@@ -8,7 +8,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "QR Box",
+  title: "Bodega – Your virtual storeroom",
   description:
     "A Smart AR storage web app. Scan, search, and see what’s inside your boxes instantly with a virtual locker.",
 };
@@ -22,7 +22,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={`antialiased`}>
         <SessionTimeoutClient />
+
         {children}
+
         <GlobalNav />
 
         <Toaster richColors position="top-center" />

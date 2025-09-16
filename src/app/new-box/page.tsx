@@ -1,7 +1,7 @@
 "use client";
 
 import { addDoc, collection, Timestamp } from "firebase/firestore";
-import { ArchiveRestore } from "lucide-react";
+import { Save } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { useCallback } from "react";
@@ -81,7 +81,7 @@ export default function AddBox() {
 
   return (
     <RequireAuth>
-      <main className="mt-8 w-full m-auto max-w-2xl px-6">
+      <main className="mt-8 mb-24 w-full m-auto max-w-2xl px-6">
         <div className="flex space-between w-full">
           <h1 className="text-4xl mr-auto font-bold">New Box</h1>
           <UserAvatarMenu size={48} />
@@ -131,7 +131,7 @@ export default function AddBox() {
             aria-label="Add"
             disabled={saving}
           >
-            <ArchiveRestore />
+            <Save />
           </Button>
         </form>
       </main>

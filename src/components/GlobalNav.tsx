@@ -8,7 +8,7 @@ import { HelpCircle, PackageOpen, ScanQrCode } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const navItems = [
-  { label: "Locker Room", path: "/locker-room", icon: PackageOpen },
+  { label: "Storage Hub", path: "/storage-hub", icon: PackageOpen },
   { label: "Scan", path: "/scan", icon: ScanQrCode },
   { label: "Help", path: "/help", icon: HelpCircle },
 ];

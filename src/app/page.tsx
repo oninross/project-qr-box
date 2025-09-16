@@ -1,13 +1,14 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import FirebaseAuthUI from "@/components/FirebaseAuthUI";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-
 export default function Home() {
   const [showBanner, setShowBanner] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     // Check for inactivity logout flag in localStorage
@@ -28,7 +29,7 @@ export default function Home() {
           </Alert>
         )}
 
-        <h1 className="text-4xl font-bold text-center w-full">Your Storage, Smarter.</h1>
+        <h1 className="text-4xl font-bold text-center w-full">Welcome to your Bodega</h1>
         <p className="text-center w-full">
           Print QR & ArUco markers, tag your boxes, and see what’s inside instantly with AR. No more
           digging.
@@ -36,13 +37,15 @@ export default function Home() {
 
         <p className="text-center w-full">
           <strong>
-            <em>YourJust point, scan, and find.</em>
+            <em>Just point, scan, and find.</em>
           </strong>
         </p>
 
         <FirebaseAuthUI />
 
-        <Button className="w-full max-w-xs">What is QR Box?</Button>
+        <Button className="w-full max-w-xs" onClick={() => router.push("/")}>
+          What is Bodega?
+        </Button>
       </main>
     </div>
   );

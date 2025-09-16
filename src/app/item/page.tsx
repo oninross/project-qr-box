@@ -133,7 +133,7 @@ function ItemComponent() {
 
   return (
     <RequireAuth>
-      <main className="mt-8 w-full m-auto max-w-2xl px-6">
+      <main className="mt-8 mb-24 w-full m-auto max-w-2xl px-6">
         <div className="flex space-between w-full">
           <h1 className="text-4xl mr-auto font-bold">Item Details</h1>
           <UserAvatarMenu size={48} />
@@ -141,7 +141,7 @@ function ItemComponent() {
 
         <Breadcrumbs />
 
-        <form className="mt-8 mb-24" onSubmit={handleSave}>
+        <form className="mt-8" onSubmit={handleSave}>
           <div className="flex flex-col md:flex-row gap-8">
             {/* Fields on the left */}
             <div className="flex-1">
@@ -183,11 +183,10 @@ function ItemComponent() {
               <Image
                 src={itemImage}
                 alt="Item"
-                className="w-full max-w-xs rounded shadow"
+                className="w-full rounded shadow"
                 style={{ display: "block" }}
-                width={320}
-                height={320}
-                objectFit="contain"
+                width={0}
+                height={0}
                 unoptimized={false}
                 priority
               />

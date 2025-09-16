@@ -105,7 +105,7 @@ function BoxComponent() {
       await deleteDoc(doc(db, "boxes", boxIdString));
 
       // Optionally, redirect or show a toast
-      window.location.href = "/locker-room";
+      window.location.href = "/storage-hub";
     } catch {
       setError("Failed to delete box. Please try again.");
     } finally {
@@ -116,7 +116,7 @@ function BoxComponent() {
 
   return (
     <RequireAuth>
-      <main className="mt-8 w-full m-auto max-w-2xl px-6">
+      <main className="mt-8 mb-24 w-full m-auto max-w-2xl px-6">
         <div className="flex space-between w-full">
           <h1 className="text-4xl mr-auto font-bold">{box?.name}</h1>
           <UserAvatar size={48} />
@@ -197,7 +197,7 @@ function BoxComponent() {
                 className="flex items-center w-full px-4 py-2 text-right text-gray-800 hover:bg-gray-100 justify-end text-right"
                 onClick={() => {
                   setMenuOpen(false); /* TODO: View box details logic */
-                  router.push(`/box-detail?boxId=${boxId}&boxCode=${boxCode}`);
+                  router.push(`/box-details?boxId=${boxId}&boxCode=${boxCode}`);
                 }}
               >
                 View box details <Pencil className="mr-2" size={18} />

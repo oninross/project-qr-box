@@ -10,8 +10,8 @@ export default function Breadcrumbs() {
     <nav aria-label="Breadcrumb" className="mb-4 text-sm text-gray-500">
       <ol className="flex space-x-2">
         <li>
-          <Link href="/locker-room" className="hover:underline">
-            Locker Room
+          <Link href="/storage-hub" className="hover:underline">
+            Storage Hub
           </Link>
         </li>
 

@@ -1,13 +1,14 @@
 "use client";
 
 import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { ArchiveRestore } from "lucide-react";
+import { Save } from "lucide-react";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect, useCallback, Suspense } from "react";
 import { toast } from "sonner";
 
+import Breadcrumbs from "@/components/Breadcrumbs";
 import RequireAuth from "@/components/RequireAuth";
 import { Button } from "@/components/ui/button";
 import UserAvatarMenu from "@/components/UserAvatarMenu";
@@ -107,11 +108,13 @@ function BoxDetailsPage() {
 
   return (
     <RequireAuth>
-      <main className="mt-8 w-full m-auto max-w-2xl px-6">
+      <main className="mt-8 mb-24 w-full m-auto max-w-2xl px-6">
         <div className="flex space-between w-full">
           <h1 className="text-4xl mr-auto font-bold">Box Details</h1>
           <UserAvatarMenu size={48} />
         </div>
+
+        <Breadcrumbs />
 
         <form className="mt-8 space-y-6" onSubmit={handleSave}>
           <div>
@@ -169,7 +172,7 @@ function BoxDetailsPage() {
             aria-label="Add"
             disabled={saving || isUnchanged}
           >
-            <ArchiveRestore />
+            <Save />
           </Button>
         </form>
       </main>

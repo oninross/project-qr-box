@@ -1,35 +1,34 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { auth } from "@/lib/firebase";
+import * as firebaseui from "firebaseui";
 
 // Import CSS dynamically
 import "firebaseui/dist/firebaseui.css";
 
-export default function FirebaseAuthUI() {
-  const uiRef = useRef<firebaseui.auth.AuthUI | null>(null);
+let firebaseUiInstance: firebaseui.auth.AuthUI | undefined;
 
+export default function FirebaseAuthUI() {
   useEffect(() => {
-    // Dynamically import firebaseui only on the client
-    import("firebaseui").then((firebaseui) => {
-      if (!uiRef.current) {
-        uiRef.current = new firebaseui.auth.AuthUI(auth);
-      }
-      uiRef.current.start("#firebaseui-auth-container", {
-        signInFlow: "popup",
-        signInOptions: [
-          { provider: "google.com" },
-          { provider: "apple.com" },
-          { provider: "password" },
-        ],
-        signInSuccessUrl: "/locker-room",
-        tosUrl: "/",
-        privacyPolicyUrl: "/",
-      });
+    // Only initialize if not already initialized
+    if (!firebaseUiInstance) {
+      firebaseUiInstance = new firebaseui.auth.AuthUI(auth);
+    }
+    firebaseUiInstance.start("#firebaseui-auth-container", {
+      signInFlow: "popup",
+      signInOptions: [
+        { provider: "google.com" },
+        { provider: "apple.com" },
+        { provider: "password" },
+      ],
+      signInSuccessUrl: "/storage-hub",
+      tosUrl: "/",
+      privacyPolicyUrl: "/",
     });
 
     return () => {
-      uiRef.current?.reset();
+      firebaseUiInstance?.reset();
     };
   }, []);
 
