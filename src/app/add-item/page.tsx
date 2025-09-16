@@ -5,7 +5,7 @@ import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { ImageIcon, Save } from "lucide-react";
 import Image from "next/image";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useState, useRef } from "react";
+import { useState, useRef, Suspense } from "react";
 import { toast } from "sonner";
 
 import RequireAuth from "@/components/RequireAuth";
@@ -14,7 +14,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import UserAvatar from "@/components/UserAvatar";
 import { db } from "@/lib/firebase";
 
-export default function AddItem() {
+function AddItemComponent() {
   const params = useSearchParams();
   const router = useRouter();
   const boxId = params.get("boxId");
@@ -140,5 +140,13 @@ export default function AddItem() {
         </Button>
       </main>
     </RequireAuth>
+  );
+}
+
+export default function AddItemPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <AddItemComponent />
+    </Suspense>
   );
 }
