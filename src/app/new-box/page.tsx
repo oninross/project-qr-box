@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { db, auth } from "@/lib/firebase";
 import { addDoc, collection, Timestamp } from "firebase/firestore";
 import { useCallback } from "react";
+import Breadcrumbs from "@/components/Breadcrumbs";
 
 export default function AddBox() {
   const [boxName, setBoxName] = useState("");
@@ -85,6 +86,8 @@ export default function AddBox() {
           <h1 className="text-4xl mr-auto font-bold">New Box</h1>
           <UserAvatarMenu size={48} />
         </div>
+
+        <Breadcrumbs />
 
         <form className="mt-8 space-y-6" onSubmit={handleSave}>
           <div>

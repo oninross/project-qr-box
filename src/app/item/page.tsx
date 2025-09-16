@@ -19,6 +19,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import Breadcrumbs from "@/components/Breadcrumbs";
 
 export default function Item() {
   const [itemName, setItemName] = useState("");
@@ -136,6 +137,8 @@ export default function Item() {
           <h1 className="text-4xl mr-auto font-bold">Item Details</h1>
           <UserAvatarMenu size={48} />
         </div>
+
+        <Breadcrumbs />
 
         <form className="mt-8 mb-24" onSubmit={handleSave}>
           <div className="flex flex-col md:flex-row gap-8">

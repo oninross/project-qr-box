@@ -17,6 +17,7 @@ import { db } from "@/lib/firebase";
 import { doc, getDoc, deleteDoc, collection, getDocs } from "firebase/firestore";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
+import Breadcrumbs from "@/components/Breadcrumbs";
 
 interface Box {
   name?: string;
@@ -123,6 +124,8 @@ export default function Box() {
         {box?.description && <p className="text-gray-400 mb-4">{box?.description}</p>}
 
         {error && <p className="text-red-600 mb-4">{error}</p>}
+
+        <Breadcrumbs />
 
         {/* Loading, Empty, or Cards */}
         {loading ? (

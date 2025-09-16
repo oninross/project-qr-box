@@ -10,6 +10,7 @@ import { db, auth } from "@/lib/firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import Breadcrumbs from "@/components/Breadcrumbs";
 
 type Box = {
   id: string;
