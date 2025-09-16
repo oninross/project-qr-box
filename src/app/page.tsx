@@ -1,10 +1,10 @@
 "use client";
 
-import FirebaseAuthUI from "@/components/FirebaseAuthUI";
-import { Button } from "@/components/ui/button";
-import { Alert } from "@/components/ui/alert";
-import { Toaster } from "sonner";
 import { useEffect, useState } from "react";
+
+import FirebaseAuthUI from "@/components/FirebaseAuthUI";
+import { Alert } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   const [showBanner, setShowBanner] = useState(false);

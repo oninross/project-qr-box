@@ -4,7 +4,7 @@ import { onAuthStateChanged, User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 
 import { usePathname, useRouter } from "next/navigation";
-import { Box, HelpCircle, PackageOpen, ScanQrCode } from "lucide-react";
+import { HelpCircle, PackageOpen, ScanQrCode } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const navItems = [

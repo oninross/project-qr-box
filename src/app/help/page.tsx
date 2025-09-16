@@ -1,5 +1,5 @@
-import UserAvatarMenu from "@/components/UserAvatarMenu";
 import RequireAuth from "@/components/RequireAuth";
+import UserAvatarMenu from "@/components/UserAvatarMenu";
 
 export default function Help() {
   return (

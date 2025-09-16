@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
-import QRCode from "qrcode";
 import { arucoToSVGString } from "aruco-marker";
 import btoa from "btoa";
 import { createCanvas, loadImage } from "canvas";
+import { NextRequest, NextResponse } from "next/server";
+import QRCode from "qrcode";
 
 const CANVAS_SIZE = 512;
 const WHITE_MARGIN = 0.1;

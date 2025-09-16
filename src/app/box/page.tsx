@@ -1,10 +1,15 @@
 "use client";
 
-import { useSearchParams, useRouter } from "next/navigation";
-import RequireAuth from "@/components/RequireAuth";
-import UserAvatar from "@/components/UserAvatar";
+import { doc, getDoc, deleteDoc, collection, getDocs } from "firebase/firestore";
 import { MoreVertical, Trash2, Pencil, Plus } from "lucide-react";
+import Image from "next/image";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+
+import Breadcrumbs from "@/components/Breadcrumbs";
+import RequireAuth from "@/components/RequireAuth";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -12,12 +17,8 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { useEffect, useState } from "react";
+import UserAvatar from "@/components/UserAvatar";
 import { db } from "@/lib/firebase";
-import { doc, getDoc, deleteDoc, collection, getDocs } from "firebase/firestore";
-import { Card, CardContent } from "@/components/ui/card";
-import Image from "next/image";
-import Breadcrumbs from "@/components/Breadcrumbs";
 
 interface Box {
   name?: string;
@@ -105,7 +106,7 @@ export default function Box() {
 
       // Optionally, redirect or show a toast
       window.location.href = "/locker-room";
-    } catch (err) {
+    } catch {
       setError("Failed to delete box. Please try again.");
     } finally {
       setDeleting(false);

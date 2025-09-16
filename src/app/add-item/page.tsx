@@ -1,16 +1,18 @@
 "use client";
 
-import { useSearchParams, useRouter } from "next/navigation";
-import RequireAuth from "@/components/RequireAuth";
-import UserAvatar from "@/components/UserAvatar";
-import { ImageIcon, Save } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useState, useRef } from "react";
-import { db } from "@/lib/firebase";
-import { Card, CardContent } from "@/components/ui/card";
 import { getAuth } from "firebase/auth";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { ImageIcon, Save } from "lucide-react";
+import Image from "next/image";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useState, useRef } from "react";
 import { toast } from "sonner";
+
+import RequireAuth from "@/components/RequireAuth";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import UserAvatar from "@/components/UserAvatar";
+import { db } from "@/lib/firebase";
 
 export default function AddItem() {
   const params = useSearchParams();
@@ -87,7 +89,15 @@ export default function AddItem() {
               onClick={handleImageClick}
             >
               {imageSrc ? (
-                <img src={imageSrc} alt="Selected" className="object-cover w-full h-full" />
+                <Image
+                  src={imageSrc}
+                  alt="Selected"
+                  className="object-cover w-full h-full"
+                  fill
+                  style={{ objectFit: "cover" }}
+                  sizes="192px"
+                  priority
+                />
               ) : (
                 <ImageIcon size={48} className="text-gray-400" />
               )}

@@ -1,16 +1,16 @@
 "use client";
 
-import UserAvatarMenu from "@/components/UserAvatarMenu";
-import RequireAuth from "@/components/RequireAuth";
+import { doc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { Save, Trash2, MoreVertical, ScanSearch } from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import React, { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
-import { useSearchParams } from "next/navigation";
+
+import Breadcrumbs from "@/components/Breadcrumbs";
+import RequireAuth from "@/components/RequireAuth";
 import { Button } from "@/components/ui/button";
-import { db } from "@/lib/firebase";
-import { doc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
-import { useRouter } from "next/navigation";
-import { Save, Trash2, Search, MoreVertical, Pencil, Plus, ScanSearch } from "lucide-react";
-import Image from "next/image";
 import {
   Dialog,
   DialogContent,
@@ -19,7 +19,8 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import Breadcrumbs from "@/components/Breadcrumbs";
+import UserAvatarMenu from "@/components/UserAvatarMenu";
+import { db } from "@/lib/firebase";
 
 export default function Item() {
   const [itemName, setItemName] = useState("");
@@ -29,7 +30,7 @@ export default function Item() {
   const [saving, setSaving] = useState(false);
   const [initialItemName, setInitialItemName] = useState("");
   const [initialItemDescription, setInitialItemDescription] = useState("");
-  const [initialItemImage, setInitialItemImage] = useState<string | null>(null);
+  const [, setInitialItemImage] = useState<string | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);

@@ -1,8 +1,10 @@
 "use client";
-import { useEffect } from "react";
-import RequireAuth from "@/components/RequireAuth";
+
 import { Html5Qrcode } from "html5-qrcode";
-import { toast, Toaster } from "sonner";
+import { useEffect } from "react";
+import { toast } from "sonner";
+
+import RequireAuth from "@/components/RequireAuth";
 
 export default function Scan() {
   const scannerId = "qr-scanner";
@@ -52,7 +54,7 @@ export default function Scan() {
               }, 1200);
             }
           },
-          (err) => {
+          () => {
             // Optional: handle scan errors
           }
         )

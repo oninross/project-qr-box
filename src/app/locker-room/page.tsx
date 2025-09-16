@@ -1,16 +1,16 @@
 "use client";
 
-import UserAvatarMenu from "@/components/UserAvatarMenu";
-import RequireAuth from "@/components/RequireAuth";
-import { useRouter } from "next/navigation";
-import { PackageOpen } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
-import { db, auth } from "@/lib/firebase";
-import { collection, query, where, getDocs } from "firebase/firestore";
 import { onAuthStateChanged, User } from "firebase/auth";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { PackageOpen } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+
+import RequireAuth from "@/components/RequireAuth";
+import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
-import Breadcrumbs from "@/components/Breadcrumbs";
+import UserAvatarMenu from "@/components/UserAvatarMenu";
+import { db, auth } from "@/lib/firebase";
 
 type Box = {
   id: string;

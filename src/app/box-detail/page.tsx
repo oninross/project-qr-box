@@ -1,16 +1,17 @@
 "use client";
 
-import UserAvatarMenu from "@/components/UserAvatarMenu";
-import RequireAuth from "@/components/RequireAuth";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { ArchiveRestore } from "lucide-react";
-
+import Image from "next/image";
+import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import React, { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
-import { useSearchParams } from "next/navigation";
+
+import RequireAuth from "@/components/RequireAuth";
 import { Button } from "@/components/ui/button";
+import UserAvatarMenu from "@/components/UserAvatarMenu";
 import { db } from "@/lib/firebase";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { useRouter } from "next/navigation";
 
 export default function BoxDetails() {
   const [boxName, setBoxName] = useState("");
@@ -97,7 +98,7 @@ export default function BoxDetails() {
         setSaving(false);
       }
     },
-    [boxName, boxDescription, boxId, router]
+    [boxName, boxDescription, boxId, boxCode, router]
   );
 
   const isUnchanged =
@@ -145,16 +146,20 @@ export default function BoxDetails() {
               disabled={saving}
             />
           </div>
-          <div className="mt-4">
-            {qrSrc && (
-              <img
+          {qrSrc && (
+            <div className="w-full max-w-xs mx-auto rounded shadow" style={{ display: "block" }}>
+              <Image
                 src={qrSrc}
                 alt="QR & Aruco Marker"
-                className="w-full max-w-xs mx-auto rounded shadow"
-                style={{ display: "block" }}
+                width={320}
+                height={320}
+                className="rounded shadow"
+                style={{ width: "100%", height: "auto" }}
+                unoptimized
               />
-            )}
-          </div>
+            </div>
+          )}
+
           {/* Floating Action Button */}
           <Button
             type="submit"

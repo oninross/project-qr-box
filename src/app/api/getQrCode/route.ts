@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
-import QRCode from "qrcode";
 import { arucoToSVGString } from "aruco-marker";
 import btoa from "btoa";
 import { createCanvas, loadImage } from "canvas";
+import { NextRequest, NextResponse } from "next/server";
+import QRCode from "qrcode";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);

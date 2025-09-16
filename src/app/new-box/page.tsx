@@ -1,17 +1,17 @@
 "use client";
 
-import UserAvatarMenu from "@/components/UserAvatarMenu";
-import RequireAuth from "@/components/RequireAuth";
-import { ArchiveRestore } from "lucide-react";
-
-import React, { useState } from "react";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { db, auth } from "@/lib/firebase";
 import { addDoc, collection, Timestamp } from "firebase/firestore";
+import { ArchiveRestore } from "lucide-react";
+import { useRouter } from "next/navigation";
+import React, { useState } from "react";
 import { useCallback } from "react";
+import { toast } from "sonner";
+
 import Breadcrumbs from "@/components/Breadcrumbs";
+import RequireAuth from "@/components/RequireAuth";
+import { Button } from "@/components/ui/button";
+import UserAvatarMenu from "@/components/UserAvatarMenu";
+import { db, auth } from "@/lib/firebase";
 
 export default function AddBox() {
   const [boxName, setBoxName] = useState("");
