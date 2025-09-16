@@ -5,7 +5,7 @@ import { ArchiveRestore } from "lucide-react";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, Suspense } from "react";
 import { toast } from "sonner";
 
 import RequireAuth from "@/components/RequireAuth";
@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import UserAvatarMenu from "@/components/UserAvatarMenu";
 import { db } from "@/lib/firebase";
 
-export default function BoxDetails() {
+function BoxDetailsPage() {
   const [boxName, setBoxName] = useState("");
   const [boxDescription, setBoxDescription] = useState("");
   const [qrSrc, setQrSrc] = useState<string | null>(null);
@@ -174,5 +174,13 @@ export default function BoxDetails() {
         </form>
       </main>
     </RequireAuth>
+  );
+}
+
+export default function AddItemPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <BoxDetailsPage />
+    </Suspense>
   );
 }
