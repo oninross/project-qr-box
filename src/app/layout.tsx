@@ -23,7 +23,7 @@ export default function RootLayout({
         {children}
         <GlobalNav />
 
-        <Toaster richColors position="bottom-left" />
+        <Toaster richColors position="top-center" />
       </body>
     </html>
   );

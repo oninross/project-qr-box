@@ -58,7 +58,13 @@ export default function LockerRoom() {
         </div>
 
         <div className="mt-8 space-y-4">
-          {loading && <div className="text-gray-500">Loading your boxes...</div>}
+          {loading && (
+            <p>
+              <strong>
+                <em>Unpacking your locker...</em>
+              </strong>
+            </p>
+          )}
 
           {error && <div className="text-red-600">{error}</div>}
 

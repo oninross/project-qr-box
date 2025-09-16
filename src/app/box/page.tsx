@@ -126,7 +126,11 @@ export default function Box() {
 
         {/* Loading, Empty, or Cards */}
         {loading ? (
-          <p>Opening your box</p>
+          <p>
+            <strong>
+              <em>Opening your box</em>
+            </strong>
+          </p>
         ) : items.length === 0 ? (
           <p>Your box is currently empty</p>
         ) : (
@@ -137,7 +141,7 @@ export default function Box() {
                 onClick={() =>
                   router.push(`/item?boxId=${boxId}&boxCode=${boxCode}&itemId=${item.id}`)
                 }
-                className="flex flex-row items-center gap-4 p-4 border rounded shadow-sm bg-white w-full cursor-pointer hover:shadow-md transition"
+                className="flex flex-row items-center gap-4 p-4 cursor-pointer rounded-sm hover:shadow-lg transition w-full"
                 style={{ outline: "none" }}
                 role="button"
                 tabIndex={0}
