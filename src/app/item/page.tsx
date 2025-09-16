@@ -5,7 +5,7 @@ import { Save, Trash2, MoreVertical, ScanSearch } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, Suspense } from "react";
 import { toast } from "sonner";
 
 import Breadcrumbs from "@/components/Breadcrumbs";
@@ -22,7 +22,7 @@ import {
 import UserAvatarMenu from "@/components/UserAvatarMenu";
 import { db } from "@/lib/firebase";
 
-export default function Item() {
+function ItemComponent() {
   const [itemName, setItemName] = useState("");
   const [itemDescription, setItemDescription] = useState("");
   const [itemImage, setItemImage] = useState<string | null>(null);
@@ -268,5 +268,13 @@ export default function Item() {
         </Dialog>
       </main>
     </RequireAuth>
+  );
+}
+
+export default function ItemPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ItemComponent />
+    </Suspense>
   );
 }
