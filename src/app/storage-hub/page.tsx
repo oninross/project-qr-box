@@ -2,10 +2,11 @@
 
 import { onAuthStateChanged, User } from "firebase/auth";
 import { collection, query, where, getDocs } from "firebase/firestore";
-import { PackageOpen } from "lucide-react";
+import { PackageOpen, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import BoxSearch from "@/components/BoxSearch";
 import RequireAuth from "@/components/RequireAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
@@ -57,6 +58,8 @@ export default function StorageHub() {
           <h1 className="text-4xl mr-auto font-bold">Storage Hub</h1>
           <UserAvatarMenu size={48} />
         </div>
+
+        <BoxSearch hasBox={boxes.length > 0} />
 
         <div className="mt-8 space-y-4">
           {loading && (
