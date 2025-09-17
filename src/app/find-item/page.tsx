@@ -1,6 +1,13 @@
 "use client";
 
 import { doc, getDoc } from "firebase/firestore";
+declare global {
+  interface Window {
+    AFRAME?: {
+      scenes?: unknown[];
+    };
+  }
+}
 import { useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -54,6 +61,51 @@ export default function FindItem() {
       }
     }
     fetchPatternAndImage();
+
+    return () => {
+      // Remove the a-scene from the DOM
+      const sceneEl = document.querySelector("a-scene");
+      if (sceneEl && sceneEl.parentNode) {
+        sceneEl.parentNode.removeChild(sceneEl);
+      }
+
+      // Stop all video streams and remove video elements from DOM
+      const videos = document.querySelectorAll("video");
+      videos.forEach((video) => {
+        if (video.srcObject) {
+          const tracks = (video.srcObject as MediaStream).getTracks();
+          tracks.forEach((track) => track.stop());
+        }
+        if (video.parentNode) {
+          video.parentNode.removeChild(video);
+        }
+      });
+
+      // Remove any inline styles on the body
+      document.body.removeAttribute("style");
+      document.body.style.width = "";
+      document.body.style.height = "";
+      document.body.style.marginLeft = "";
+      document.body.style.marginTop = "";
+      document.body.style.background = "";
+
+      // Remove all listeners from window
+      window.onresize = null;
+      window.onorientationchange = null;
+
+      // Attempt to clear global AFRAME scenes
+      if (window.AFRAME && window.AFRAME.scenes) {
+        window.AFRAME.scenes.length = 0;
+      }
+
+      // --- FORCE FULL PAGE RELOAD ---
+      // This is the only way to guarantee all AR.js listeners are gone
+      setTimeout(() => {
+        if (window.location.pathname !== "/find-item") {
+          window.location.reload();
+        }
+      }, 100);
+    };
   }, [boxId, itemId]);
 
   // Calculate height based on aspect ratio and marker width
