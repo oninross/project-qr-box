@@ -4,62 +4,62 @@ import { createCanvas, loadImage } from "canvas";
 import { NextRequest, NextResponse } from "next/server";
 import QRCode from "qrcode";
 
-const CANVAS_SIZE = 512;
-const WHITE_MARGIN = 0.1;
-const ICON_BOUNDS = 369;
-const QR_SIZE = 104;
-
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const boxId = searchParams.get("boxId") ?? "0";
   const boxCode = searchParams.get("boxCode") ?? "0";
 
-  // Set up canvas
-  const canvas = createCanvas(CANVAS_SIZE, CANVAS_SIZE);
+  // Draw Aruco marker on canvas
+  const canvas = createCanvas(370, 370);
   const ctx = canvas.getContext("2d");
-
-  // Draw white background and black border
   ctx.fillStyle = "white";
-  ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
-  ctx.fillStyle = "black";
-  ctx.fillRect(
-    WHITE_MARGIN * CANVAS_SIZE,
-    WHITE_MARGIN * CANVAS_SIZE,
-    CANVAS_SIZE * (1 - 2 * WHITE_MARGIN),
-    CANVAS_SIZE * (1 - 2 * WHITE_MARGIN)
-  );
-  ctx.setLineDash([5, 3]);
-  ctx.strokeStyle = "#c0c0c0";
-  ctx.strokeRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+  ctx.fillRect(0, 0, 370, 370);
 
-  // Draw Aruco marker
-  const svgImage = arucoToSVGString(Number(boxCode), `${ICON_BOUNDS}px`);
+  const svgImage = arucoToSVGString(Number(boxCode), "370px");
   const svgBase64 = btoa(svgImage);
-
   const svgImg = await loadImage(`data:image/svg+xml;base64,${svgBase64}`);
-  ctx.drawImage(
-    svgImg,
-    (CANVAS_SIZE - ICON_BOUNDS) / 2,
-    (CANVAS_SIZE - ICON_BOUNDS) / 2,
-    ICON_BOUNDS,
-    ICON_BOUNDS
-  );
+  ctx.drawImage(svgImg, 0, 0, 370, 370);
 
-  // Draw QR code
+  // Draw QR code on top
   const qrUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/box/?boxId=${boxId}&boxCode=${boxCode}`;
   const qrDataUrl = await QRCode.toDataURL(qrUrl);
   const qrImg = await loadImage(qrDataUrl);
-  ctx.drawImage(qrImg, (CANVAS_SIZE - QR_SIZE) / 2, (CANVAS_SIZE - QR_SIZE) / 2, QR_SIZE, QR_SIZE);
+  ctx.drawImage(qrImg, 133, 133, 104, 104);
 
-  // Return PNG
-  const buffer = canvas.toBuffer("image/png");
-  // Convert Node.js Buffer to Uint8Array for NextResponse
-  const uint8Array = new Uint8Array(buffer);
-  return new NextResponse(uint8Array, {
-    status: 200,
-    headers: {
-      "Content-Type": "image/png",
-      "Access-Control-Allow-Origin": "*",
-    },
-  });
+  // Prepare pattern file string
+  const smallCanvas = createCanvas(16, 16);
+  const smallCtx = smallCanvas.getContext("2d");
+  let pattern = "";
+
+  for (let angle = 0; angle > -2 * Math.PI; angle -= Math.PI / 2) {
+    smallCtx.save();
+    smallCtx.clearRect(0, 0, 16, 16);
+    smallCtx.translate(8, 8);
+    smallCtx.rotate(angle);
+    smallCtx.drawImage(canvas, -8, -8, 16, 16);
+    smallCtx.restore();
+
+    const imgData = smallCtx.getImageData(0, 0, 16, 16);
+    if (angle !== 0) pattern += "\n";
+    for (let c = 2; c >= 0; c--) {
+      for (let y = 0; y < 16; y++) {
+        for (let x = 0; x < 16; x++) {
+          if (x !== 0) pattern += " ";
+          const idx = y * 16 * 4 + x * 4 + c;
+          pattern += String(imgData.data[idx]).padStart(3);
+        }
+        pattern += "\n";
+      }
+    }
+  }
+
+  return NextResponse.json(
+    { pattern },
+    {
+      status: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+      },
+    }
+  );
 }

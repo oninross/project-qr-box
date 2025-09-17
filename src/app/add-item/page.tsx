@@ -85,7 +85,7 @@ function AddItemComponent() {
             {/* Image placeholder icon */}
             <button
               type="button"
-              className="cursor-pointer w-48 h-48 flex items-center m-auto justify-center bg-gray-100 rounded mb-6 overflow-hidden"
+              className="cursor-pointer w-48 h-48 flex items-center m-auto justify-center bg-gray-100 rounded mb-6 overflow-hidden relative"
               onClick={handleImageClick}
             >
               {imageSrc ? (

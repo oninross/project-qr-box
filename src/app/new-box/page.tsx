@@ -41,7 +41,7 @@ export default function AddBox() {
     async (e: React.FormEvent) => {
       e.preventDefault();
       if (boxName.trim().length < 3) {
-        setError("Box Name must be at least 3 characters.");
+        toast.error("Box Name must be at least 3 characters.");
         return;
       }
       setError("");
@@ -49,29 +49,43 @@ export default function AddBox() {
       try {
         const user = auth.currentUser;
         if (!user) {
-          setError("You must be logged in.");
+          toast.error("You must be logged in.");
           setSaving(false);
           return;
         }
         const boxCode = await generateUniqueBoxCode();
         if (!boxCode) {
-          setError("Could not generate a unique box code. Please try again.");
+          toast.error("Could not generate a unique box code. Please try again.");
           setSaving(false);
           return;
         }
+
+        // 1. Generate the pattern file from the API
+        const pattRes = await fetch(`/api/createPattFile?boxId=temp&boxCode=${boxCode}`);
+        if (!pattRes.ok) {
+          toast.error("Failed to generate pattern file.");
+          setSaving(false);
+          return;
+        }
+        const pattData = await pattRes.json();
+
+        // 2. Save box details including the pattern file
         const docRef = await addDoc(collection(db, "boxes"), {
           name: boxName.trim(),
           description: boxDescription.trim(),
           createdAt: Timestamp.now(),
           userId: user.uid,
           boxCode,
+          patternFile: pattData.pattern,
         });
+
         toast.success("Box created successfully!");
         setTimeout(() => {
           router.push(`/box?boxId=${docRef.id}&boxCode=${boxCode}`);
         }, 3000);
-      } catch {
-        setError("Failed to save box. Please try again.");
+      } catch (err) {
+        console.error("AddBox error:", err);
+        toast.error("Failed to save box. Please try again.");
       } finally {
         setSaving(false);
       }

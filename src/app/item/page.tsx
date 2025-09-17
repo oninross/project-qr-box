@@ -124,7 +124,11 @@ function ItemComponent() {
 
   // Find item logic (with Sonner alert)
   const handleFind = () => {
-    toast.info("Find item feature coming soon!");
+    if (boxId && itemId) {
+      router.push(
+        `/find-item?boxId=${encodeURIComponent(boxId)}&itemId=${encodeURIComponent(itemId)}`
+      );
+    }
   };
 
   const isUnchanged =
