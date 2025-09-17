@@ -148,7 +148,7 @@ function ItemComponent() {
         <form className="mt-8" onSubmit={handleSave}>
           <div className="flex flex-col md:flex-row gap-8">
             {/* Fields on the left */}
-            <div className="flex-1">
+            <div className="w-full md:w-1/2 flex-1">
               <div>
                 <label htmlFor="itemName" className="block text-sm font-medium mb-1">
                   Item Name
@@ -183,18 +183,20 @@ function ItemComponent() {
               </div>
             </div>
             {/* Image on the right */}
-            {itemImage && (
-              <Image
-                src={itemImage}
-                alt="Item"
-                className="w-full rounded shadow"
-                style={{ display: "block" }}
-                width={0}
-                height={0}
-                unoptimized={false}
-                priority
-              />
-            )}
+            <div className="w-full md:w-1/2 flex items-center justify-center">
+              {itemImage && (
+                <Image
+                  src={itemImage}
+                  alt="Item"
+                  className="w-full rounded shadow"
+                  style={{ display: "block" }}
+                  width={0}
+                  height={0}
+                  unoptimized={false}
+                  priority
+                />
+              )}
+            </div>
           </div>
         </form>
 
