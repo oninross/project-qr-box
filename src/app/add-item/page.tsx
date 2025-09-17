@@ -117,6 +117,8 @@ function AddItemComponent() {
             <input
               type="file"
               accept="image/*"
+              name="file"
+              capture="environment" // <-- This hints to use the camera if available
               ref={fileInputRef}
               style={{ display: "none" }}
               onChange={handleFileChange}
