@@ -42,7 +42,7 @@ export default function Scan() {
           {
             fps: 10,
             qrbox: () => {
-              return { width: 250, height: 250 };
+              return { width: 300, height: 300 };
             },
             aspectRatio: window.innerWidth / window.innerHeight,
           },
