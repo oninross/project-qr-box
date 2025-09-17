@@ -1,6 +1,6 @@
 "use client";
 
-import { addDoc, collection, Timestamp } from "firebase/firestore";
+import { addDoc, collection, Timestamp, query, where, getDocs } from "firebase/firestore";
 import { Save } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -41,7 +41,7 @@ export default function AddBox() {
     async (e: React.FormEvent) => {
       e.preventDefault();
       if (boxName.trim().length < 3) {
-        toast.error("Box Name must be at least 3 characters.");
+        setError("Box Name must be at least 3 characters.");
         return;
       }
       setError("");
@@ -53,6 +53,18 @@ export default function AddBox() {
           setSaving(false);
           return;
         }
+
+        // --- LIMIT CHECK: Only allow up to 5 boxes per user ---
+        const boxesRef = collection(db, "boxes");
+        const q = query(boxesRef, where("userId", "==", user.uid));
+        const userBoxesSnap = await getDocs(q);
+        if (userBoxesSnap.size >= 5) {
+          toast.error("You can only add up to 5 boxes.");
+          setSaving(false);
+          return;
+        }
+        // --- END LIMIT CHECK ---
+
         const boxCode = await generateUniqueBoxCode();
         if (!boxCode) {
           toast.error("Could not generate a unique box code. Please try again.");
