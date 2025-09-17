@@ -1,18 +1,27 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "@/lib/firebase";
 
 export default function Breadcrumbs() {
   const pathname = usePathname();
   const segments = pathname.split("/").filter(Boolean);
+  const [user] = useAuthState(auth);
 
   return (
     <nav aria-label="Breadcrumb" className="mb-4 text-sm text-gray-500">
       <ol className="flex space-x-2">
         <li>
-          <Link href="/storage-hub" className="hover:underline">
-            Storage Hub
-          </Link>
+          {user ? (
+            <Link href="/storage-hub" className="hover:underline">
+              Storage Hub
+            </Link>
+          ) : (
+            <Link href="/" className="hover:underline">
+              Login
+            </Link>
+          )}
         </li>
 
         {segments.map((seg, idx) => {

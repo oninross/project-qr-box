@@ -20,7 +20,7 @@ export default function Help() {
             <li>Sign up or log in to your account.</li>
             <li>Create a new locker and name it (e.g., “Garage Storage” or “Board Games”).</li>
             <li>Upload photos of your items and tag them with titles and descriptions.</li>
-            <li>Print your unique QR &amp; ArUco markers and stick them on your boxes.</li>
+            <li>Print your unique QR &amp; AR markers and stick them on your boxes.</li>
           </ol>
         </div>
         <div className="mb-4">
@@ -36,7 +36,7 @@ export default function Help() {
         <h2 className="text-2xl font-semibold mb-4">Markers &amp; Boxes</h2>
         <div className="mb-4">
           <h3 className="font-semibold">Q: Are all markers unique?</h3>
-          <p>Yes, each QR &amp; ArUco marker pair is unique and linked to one specific box.</p>
+          <p>Yes, each QR &amp; AR marker pair is unique and linked to one specific box.</p>
         </div>
         <div className="mb-4">
           <h3 className="font-semibold">Q: Can I re-use a marker?</h3>

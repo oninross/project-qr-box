@@ -1,13 +1,31 @@
 "use client";
 import { useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { signOut } from "firebase/auth";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "@/lib/firebase";
 
+const PUBLIC_PATHS = ["/", "/what-is-bodega"];
+
+function isPublicPath(pathname: string) {
+  // Normalize: remove trailing slash except for root
+  let normalized = pathname;
+  if (normalized.length > 1 && normalized.endsWith("/")) {
+    normalized = normalized.slice(0, -1);
+  }
+  // Also check with and without trailing slash
+  return PUBLIC_PATHS.some(
+    (publicPath) =>
+      normalized === publicPath ||
+      normalized === publicPath + "/" ||
+      normalized.startsWith(publicPath + "/")
+  );
+}
+
 export default function SessionTimeout() {
   const [user, loading] = useAuthState(auth);
   const router = useRouter();
+  const pathname = usePathname();
   const isMounted = useRef(true);
 
   useEffect(() => {
@@ -71,10 +89,14 @@ export default function SessionTimeout() {
   }, [router]);
 
   useEffect(() => {
-    if (!loading && !user) {
+    // Debug: log the current path and result
+    // Remove after debugging
+    // console.log("SessionTimeout: pathname", pathname, "isPublicPath", isPublicPath(pathname));
+
+    if (!loading && !user && !isPublicPath(pathname)) {
       router.replace("/");
     }
-  }, [user, loading, router]);
+  }, [user, loading, router, pathname]);
 
   if (loading) return null; // or a loading spinner
 

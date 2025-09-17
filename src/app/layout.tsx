@@ -79,9 +79,10 @@ export default function RootLayout({
       </head>
 
       <body className="arjs antialiased">
-        <SessionTimeoutClient />
+        {/* <SessionTimeoutClient /> */}
 
         <ServiceWorkerRegister />
+
         {children}
 
         <GlobalNav />

@@ -32,7 +32,7 @@ export default function Home() {
 
         <h1 className="text-4xl font-bold text-center w-full">Welcome to your Bodega</h1>
         <p className="text-center w-full">
-          Print QR & ArUco markers, tag your boxes, and see what’s inside instantly with AR. No more
+          Print QR & AR markers, tag your boxes, and see what’s inside instantly with AR. No more
           digging.
         </p>
 
@@ -44,7 +44,7 @@ export default function Home() {
 
         <FirebaseAuthUI />
 
-        <Button className="w-full max-w-xs" onClick={() => router.push("/")}>
+        <Button className="w-full max-w-xs" onClick={() => router.push("/what-is-bodega")}>
           What is Bodega?
         </Button>
       </main>

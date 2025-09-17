@@ -153,7 +153,7 @@ function BoxDetailsPage() {
             <div className="w-full max-w-xs mx-auto rounded shadow" style={{ display: "block" }}>
               <Image
                 src={qrSrc}
-                alt="QR & Aruco Marker"
+                alt="QR & AR Marker"
                 width={320}
                 height={320}
                 className="rounded shadow"
