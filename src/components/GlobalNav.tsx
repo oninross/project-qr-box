@@ -26,7 +26,7 @@ export default function GlobalNav() {
   if (!user) return null;
 
   return (
-    <nav className="fixed border-t-1 border-oklch(70.5% 0.015 286.067) bottom-0 left-0 w-full bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-700 z-50">
+    <nav className="fixed border-t-1 border-oklch(70.5% 0.015 286.067) bottom-0 left-0 w-full bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-700 z-99999">
       <ul className="flex justify-around items-center h-16">
         {navItems.map((item) => {
           const Icon = item.icon;
