@@ -3,7 +3,7 @@
 import { collection, getDocs, query, where } from "firebase/firestore";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { toast } from "sonner";
 
@@ -27,7 +27,7 @@ type Box = {
   [key: string]: unknown;
 };
 
-export default function SearchPage() {
+function SearchComponent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const searchTerm = searchParams.get("query")?.trim() || "";
@@ -143,5 +143,13 @@ export default function SearchPage() {
       )}
       {!loading && results.length === 0 && <div className="text-gray-500">No items found.</div>}
     </main>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SearchComponent />
+    </Suspense>
   );
 }

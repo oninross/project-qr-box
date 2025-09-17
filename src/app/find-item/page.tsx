@@ -9,7 +9,7 @@ declare global {
   }
 }
 import { useSearchParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import RequireAuth from "@/components/RequireAuth";
@@ -17,7 +17,7 @@ import { db } from "@/lib/firebase";
 
 const markerWidth = 1; // 1 meter wide marker
 
-export default function FindItem() {
+function FindItemComponent() {
   const [patternFile, setPatternFile] = useState<string | null>(null);
   const [itemImage, setItemImage] = useState<string | null>(null);
   const [imageAspect, setImageAspect] = useState<number | null>(null);
@@ -138,5 +138,13 @@ export default function FindItem() {
         {/* @ts-expect-error: custom elements not recognized by TypeScript */}
       </a-scene>
     </RequireAuth>
+  );
+}
+
+export default function FindItemPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <FindItemComponent />
+    </Suspense>
   );
 }
