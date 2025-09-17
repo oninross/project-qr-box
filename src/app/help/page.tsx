@@ -17,9 +17,8 @@ export default function Help() {
         <div className="mb-4">
           <h3 className="font-semibold">Q: How do I set up my first virtual locker?</h3>
           <ol className="list-decimal list-inside ml-4 mt-2 space-y-1">
-            <li>Sign up or log in to your account.</li>
             <li>Create a new locker and name it (e.g., “Garage Storage” or “Board Games”).</li>
-            <li>Upload photos of your items and tag them with titles and descriptions.</li>
+            <li>Upload photos of your items and label them with titles and descriptions.</li>
             <li>Print your unique QR &amp; AR markers and stick them on your boxes.</li>
           </ol>
         </div>
@@ -28,7 +27,7 @@ export default function Help() {
           <ol className="list-decimal list-inside ml-4 mt-2 space-y-1">
             <li>Open the scanner from the app’s home screen.</li>
             <li>Point your phone at the box’s marker.</li>
-            <li>You’ll instantly see the box contents in AR, or be taken to its virtual locker.</li>
+            <li>You’ll see the box contents in its virtual locker.</li>
           </ol>
         </div>
       </section>
@@ -71,26 +70,25 @@ export default function Help() {
         <h2 className="text-2xl font-semibold mb-4">AR Overlay</h2>
         <div className="mb-4">
           <h3 className="font-semibold">Q: Does the AR view work on all devices?</h3>
-          <p>
-            Works best on Android Chrome.
-            <br />
-            iOS Safari support is coming soon (currently limited by WebAR).
-          </p>
+          <p>Yes, it should work for all modern devices</p>
         </div>
         <div className="mb-4">
           <h3 className="font-semibold">Q: Do I need to install an app?</h3>
-          <p>No — AR runs directly in your browser with AR.js.</p>
+          <p>No — AR runs directly in your device&quo;s browser.</p>
         </div>
       </section>
       <section className="mb-8">
         <h2 className="text-2xl font-semibold mb-4">Account &amp; Billing</h2>
         <div className="mb-4">
           <h3 className="font-semibold">Q: What’s included in the free plan?</h3>
-          <p>Up to 10 markers, 1 locker, basic search.</p>
+          <p>Up to 5 markers</p>
         </div>
         <div className="mb-4">
           <h3 className="font-semibold">Q: How do I upgrade?</h3>
-          <p>Go to your profile &gt; Billing and select a plan.</p>
+          <p>
+            Go to your profile &gt; Billing and select a plan. (Currently, Free plans are only
+            available)
+          </p>
         </div>
         <div className="mb-4">
           <h3 className="font-semibold">Q: Can I cancel anytime?</h3>
