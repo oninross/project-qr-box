@@ -1,5 +1,6 @@
 "use client";
 
+import exifr from "exifr";
 import { getAuth } from "firebase/auth";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { ImageIcon, Save } from "lucide-react";
@@ -24,6 +25,7 @@ function AddItemComponent() {
   const [itemName, setItemName] = useState<string>("");
   const [itemDescription, setItemDescription] = useState<string>("");
   const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const [imgOrientation, setImgOrientation] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Handler for image placeholder click (desktop: only file upload)
@@ -32,9 +34,18 @@ function AddItemComponent() {
   };
 
   // Handler for file input change
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Get EXIF orientation
+      try {
+        const orientation = await exifr.orientation(file);
+        setImgOrientation(orientation || 1); // Default to 1 if not found
+      } catch {
+        setImgOrientation(1);
+      }
+
+      // Read image for preview
       const reader = new FileReader();
       reader.onload = (event) => {
         setImageSrc(event.target?.result as string);
@@ -85,7 +96,7 @@ function AddItemComponent() {
             {/* Image placeholder icon */}
             <button
               type="button"
-              className="cursor-pointer w-48 h-48 flex items-center m-auto justify-center bg-gray-100 rounded mb-6 overflow-hidden relative"
+              className={`cursor-pointer w-48 h-48 flex items-center m-auto justify-center bg-gray-100 rounded mb-6 overflow-hidden relative ${imgOrientation ? `-exif-code${imgOrientation}` : ""}`}
               onClick={handleImageClick}
             >
               {imageSrc ? (

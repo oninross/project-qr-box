@@ -95,12 +95,10 @@ function BoxComponent() {
     if (!boxIdString) return;
     setDeleting(true);
     try {
-      // Delete all items in the top-level "items" collection with this boxId
-      const itemsRef = collection(db, "items");
+      // Delete all items in the box (assuming a subcollection "items")
+      const itemsRef = collection(db, "boxes", boxIdString, "items");
       const itemsSnap = await getDocs(itemsRef);
-      const deletePromises = itemsSnap.docs
-        .filter((itemDoc) => itemDoc.data().boxId === boxIdString)
-        .map((itemDoc) => deleteDoc(itemDoc.ref));
+      const deletePromises = itemsSnap.docs.map((itemDoc) => deleteDoc(itemDoc.ref));
       await Promise.all(deletePromises);
 
       // Delete the box document itself
@@ -116,22 +114,11 @@ function BoxComponent() {
     }
   }
 
-  useEffect(() => {
-    if (deleting) {
-      document.body.style.cursor = "wait";
-    } else {
-      document.body.style.cursor = "";
-    }
-    return () => {
-      document.body.style.cursor = "";
-    };
-  }, [deleting]);
-
   return (
     <RequireAuth>
       <main className="mt-8 mb-24 w-full m-auto max-w-2xl px-6">
         <div className="flex space-between w-full">
-          <h1 className="text-4xl mr-auto font-bold">{box?.name}</h1>
+          <h1 className="text-4xl mr-auto font-bold">{box?.name ? box?.name : "..."}</h1>
           <UserAvatar size={48} />
         </div>
 
@@ -209,7 +196,7 @@ function BoxComponent() {
                 variant="ghost"
                 className="flex items-center w-full px-4 py-2 text-right text-gray-800 hover:bg-gray-100 justify-end text-right"
                 onClick={() => {
-                  setMenuOpen(false);
+                  setMenuOpen(false); /* TODO: View box details logic */
                   router.push(`/box-details?boxId=${boxId}&boxCode=${boxCode}`);
                 }}
               >
