@@ -1,8 +1,11 @@
 /* eslint-disable @next/next/no-sync-scripts */
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Toaster } from "sonner";
 
 import GlobalNav from "@/components/GlobalNav";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
+import SessionTimeoutClient from "@/components/SessionTimeoutClient";
 
 import "./globals.css";
 
@@ -78,7 +81,11 @@ export default function RootLayout({
       </head>
 
       <body className="arjs antialiased">
-        {/* <SessionTimeoutClient /> */}
+        <Analytics />
+
+        <SpeedInsights />
+
+        <SessionTimeoutClient />
 
         <ServiceWorkerRegister />
 
