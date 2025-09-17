@@ -80,7 +80,7 @@ export default function RootLayout({
         <script src="https://cdn.rawgit.com/jeromeetienne/AR.js/1.6.0/aframe/build/aframe-ar.js"></script> */}
       </head>
 
-      <body className="arjs antialiased">
+      <body className="arjs antialiased" style={{ margin: 0, overflow: "hidden" }}>
         <Analytics />
 
         <SpeedInsights />
