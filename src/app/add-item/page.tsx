@@ -6,7 +6,7 @@ import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { ImageIcon, Save } from "lucide-react";
 import Image from "next/image";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useState, useRef, Suspense } from "react";
+import { useState, useRef, Suspense, useEffect } from "react";
 import { toast } from "sonner";
 
 import RequireAuth from "@/components/RequireAuth";
@@ -26,6 +26,7 @@ function AddItemComponent() {
   const [itemDescription, setItemDescription] = useState<string>("");
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [imgOrientation, setImgOrientation] = useState<number | null>(null);
+  const [saving, setSaving] = useState(false); // Add saving state
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Handler for image placeholder click (desktop: only file upload)
@@ -60,11 +61,13 @@ function AddItemComponent() {
       toast.error("Please provide an image, and name.");
       return;
     }
+    setSaving(true); // Set saving to true
     try {
       const auth = getAuth();
       const user = auth.currentUser;
       if (!user) {
         toast.error("User not authenticated.");
+        setSaving(false);
         return;
       }
       await addDoc(collection(db, "items"), {
@@ -80,8 +83,21 @@ function AddItemComponent() {
     } catch (error) {
       toast.error("Error saving item.");
       console.error(error);
+    } finally {
+      setSaving(false); // Reset saving state
     }
   };
+
+  useEffect(() => {
+    if (saving) {
+      document.body.style.cursor = "wait";
+    } else {
+      document.body.style.cursor = "";
+    }
+    return () => {
+      document.body.style.cursor = "";
+    };
+  }, [saving]);
 
   return (
     <RequireAuth>
@@ -98,6 +114,8 @@ function AddItemComponent() {
               type="button"
               className={`cursor-pointer w-48 h-48 flex items-center m-auto justify-center bg-gray-100 rounded mb-6 overflow-hidden relative ${imgOrientation ? `-exif-code${imgOrientation}` : ""}`}
               onClick={handleImageClick}
+              disabled={saving} // Disable while saving
+              aria-disabled={saving}
             >
               {imageSrc ? (
                 <Image
@@ -118,10 +136,12 @@ function AddItemComponent() {
               type="file"
               accept="image/*"
               name="file"
-              capture="environment" // <-- This hints to use the camera if available
+              capture="environment"
               ref={fileInputRef}
               style={{ display: "none" }}
               onChange={handleFileChange}
+              disabled={saving} // Disable while saving
+              aria-disabled={saving}
             />
             {/* Item Name field */}
             <input
@@ -130,6 +150,8 @@ function AddItemComponent() {
               placeholder="Item Name"
               value={itemName}
               onChange={(e) => setItemName(e.target.value)}
+              disabled={saving} // Disable while saving
+              aria-disabled={saving}
             />
             {/* Item Description field */}
             <textarea
@@ -138,6 +160,8 @@ function AddItemComponent() {
               rows={3}
               value={itemDescription}
               onChange={(e) => setItemDescription(e.target.value)}
+              disabled={saving} // Disable while saving
+              aria-disabled={saving}
             />
           </CardContent>
         </Card>
@@ -148,6 +172,7 @@ function AddItemComponent() {
           onClick={handleSave}
           className="fixed bottom-22 right-6 w-12 h-12 rounded-full bg-green-600 text-white shadow-lg hover:bg-green-700 focus:outline-none z-50 transition-all duration-200 ease-out hover:scale-110"
           aria-label="Save"
+          disabled={saving} // Disable while saving
         >
           <Save />
         </Button>
