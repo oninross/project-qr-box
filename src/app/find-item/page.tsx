@@ -57,7 +57,7 @@ function FindItemComponent() {
           toast.error("Item not found.");
         }
       } catch (err) {
-        toast.error("Failed to fetch pattern file or item image.");
+        toast.error(`Failed to fetch pattern file or item image. (${err})`);
       }
     }
     fetchPatternAndImage();

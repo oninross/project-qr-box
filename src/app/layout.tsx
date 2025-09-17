@@ -3,7 +3,6 @@ import { Toaster } from "sonner";
 
 import GlobalNav from "@/components/GlobalNav";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
-import SessionTimeoutClient from "@/components/SessionTimeoutClient";
 
 import "./globals.css";
 
