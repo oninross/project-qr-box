@@ -86,7 +86,7 @@ export default function StorageHub() {
                 className="cursor-pointer rounded-sm hover:shadow-lg transition"
                 onClick={() => router.push(`/box?boxId=${box.id}&boxCode=${box.boxCode}`)}
               >
-                <CardHeader>
+                <CardHeader className="gap-0">
                   <CardTitle>{box.name}</CardTitle>
                 </CardHeader>
               </Card>
