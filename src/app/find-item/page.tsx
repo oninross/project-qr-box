@@ -113,30 +113,50 @@ function FindItemComponent() {
 
   return (
     <RequireAuth>
-      {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-      <a-scene
-        embedded
-        arjs="debugUIEnabled: false; maxDetectionRate: 30; trackingMethod: best; patternRatio: 0.9;"
+      <div
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100vw",
+          height: "100vh",
+          zIndex: 9999,
+          background: "#000",
+        }}
       >
         {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-        <a-camera-static />
+        <a-scene
+          embedded
+          vr-mode-ui="enabled: false"
+          style={{
+            width: "100vw",
+            height: "100vh",
+            position: "absolute",
+            top: 0,
+            left: 0,
+          }}
+          arjs="debugUIEnabled: false; maxDetectionRate: 30; trackingMethod: best; patternRatio: 0.9;"
+        >
+          {/* @ts-expect-error: custom elements not recognized by TypeScript */}
+          <a-camera-static />
 
-        {patternFile && itemImage && imageAspect && (
-          // @ts-expect-error: custom elements not recognized by TypeScript
-          <a-marker type="pattern" url={patternFile}>
-            {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-            <a-image
-              src={itemImage}
-              width={markerWidth}
-              height={imageHeight}
-              position="0 0 0"
-              rotation="-90 0 0"
-            />
-            {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-          </a-marker>
-        )}
-        {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-      </a-scene>
+          {patternFile && itemImage && imageAspect && (
+            // @ts-expect-error: custom elements not recognized by TypeScript
+            <a-marker type="pattern" url={patternFile}>
+              {/* @ts-expect-error: custom elements not recognized by TypeScript */}
+              <a-image
+                src={itemImage}
+                width={markerWidth}
+                height={imageHeight}
+                position="0 0 0"
+                rotation="-90 0 0"
+              />
+              {/* @ts-expect-error: custom elements not recognized by TypeScript */}
+            </a-marker>
+          )}
+          {/* @ts-expect-error: custom elements not recognized by TypeScript */}
+        </a-scene>
+      </div>
     </RequireAuth>
   );
 }
