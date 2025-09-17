@@ -4,6 +4,7 @@ import { collection, getDocs, query, where } from "firebase/firestore";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
 import { toast } from "sonner";
 
 import BoxSearch from "@/components/BoxSearch";
@@ -30,13 +31,13 @@ export default function SearchPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const searchTerm = searchParams.get("query")?.trim() || "";
-  const user = auth.currentUser;
+  const [user, loadingUser] = useAuthState(auth); // <-- use the hook
   const [results, setResults] = useState<Item[]>([]);
   const [boxesMap, setBoxesMap] = useState<Record<string, Box>>({});
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!user || !searchTerm) return;
+    if (loadingUser || !user || !searchTerm) return; // <-- wait for user to load
 
     const fetchResults = async () => {
       setLoading(true);
@@ -89,7 +90,7 @@ export default function SearchPage() {
     };
 
     fetchResults();
-  }, [user, searchTerm]);
+  }, [user, searchTerm, loadingUser]); // <-- include loadingUser
 
   return (
     <main className="max-w-2xl mx-auto px-4 py-8">
