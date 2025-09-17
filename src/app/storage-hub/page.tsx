@@ -2,7 +2,7 @@
 
 import { onAuthStateChanged, User } from "firebase/auth";
 import { collection, query, where, getDocs } from "firebase/firestore";
-import { PackageOpen, Search } from "lucide-react";
+import { PackageOpen } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 

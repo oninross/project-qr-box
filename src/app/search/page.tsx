@@ -8,7 +8,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { toast } from "sonner";
 
 import BoxSearch from "@/components/BoxSearch";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import UserAvatar from "@/components/UserAvatar";
 import { auth, db } from "@/lib/firebase";
 
