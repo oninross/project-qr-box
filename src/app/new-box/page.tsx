@@ -3,7 +3,7 @@
 import { addDoc, collection, Timestamp } from "firebase/firestore";
 import { Save } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useCallback } from "react";
 import { toast } from "sonner";
 
@@ -92,6 +92,17 @@ export default function AddBox() {
     },
     [boxName, boxDescription, router]
   );
+
+  useEffect(() => {
+    if (saving) {
+      document.body.style.cursor = "wait";
+    } else {
+      document.body.style.cursor = "";
+    }
+    return () => {
+      document.body.style.cursor = "";
+    };
+  }, [saving]);
 
   return (
     <RequireAuth>

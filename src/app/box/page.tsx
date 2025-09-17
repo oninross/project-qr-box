@@ -95,10 +95,12 @@ function BoxComponent() {
     if (!boxIdString) return;
     setDeleting(true);
     try {
-      // Delete all items in the box (assuming a subcollection "items")
-      const itemsRef = collection(db, "boxes", boxIdString, "items");
+      // Delete all items in the top-level "items" collection with this boxId
+      const itemsRef = collection(db, "items");
       const itemsSnap = await getDocs(itemsRef);
-      const deletePromises = itemsSnap.docs.map((itemDoc) => deleteDoc(itemDoc.ref));
+      const deletePromises = itemsSnap.docs
+        .filter((itemDoc) => itemDoc.data().boxId === boxIdString)
+        .map((itemDoc) => deleteDoc(itemDoc.ref));
       await Promise.all(deletePromises);
 
       // Delete the box document itself
@@ -113,6 +115,17 @@ function BoxComponent() {
       setShowDeleteModal(false);
     }
   }
+
+  useEffect(() => {
+    if (deleting) {
+      document.body.style.cursor = "wait";
+    } else {
+      document.body.style.cursor = "";
+    }
+    return () => {
+      document.body.style.cursor = "";
+    };
+  }, [deleting]);
 
   return (
     <RequireAuth>

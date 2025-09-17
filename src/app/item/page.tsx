@@ -135,6 +135,28 @@ function ItemComponent() {
     itemName.trim() === initialItemName.trim() &&
     itemDescription.trim() === initialItemDescription.trim();
 
+  useEffect(() => {
+    if (saving) {
+      document.body.style.cursor = "wait";
+    } else {
+      document.body.style.cursor = "";
+    }
+    return () => {
+      document.body.style.cursor = "";
+    };
+  }, [saving]);
+
+  useEffect(() => {
+    if (deleting) {
+      document.body.style.cursor = "wait";
+    } else {
+      document.body.style.cursor = "";
+    }
+    return () => {
+      document.body.style.cursor = "";
+    };
+  }, [deleting]);
+
   return (
     <RequireAuth>
       <main className="mt-8 mb-24 w-full m-auto max-w-2xl px-6">
