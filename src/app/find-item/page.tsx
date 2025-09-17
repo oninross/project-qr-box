@@ -8,17 +8,22 @@ import { toast } from "sonner";
 import RequireAuth from "@/components/RequireAuth";
 import { db } from "@/lib/firebase";
 
+const markerWidth = 1; // 1 meter wide marker
+
 export default function FindItem() {
   const [patternFile, setPatternFile] = useState<string | null>(null);
+  const [itemImage, setItemImage] = useState<string | null>(null);
+  const [imageAspect, setImageAspect] = useState<number | null>(null);
   const searchParams = useSearchParams();
   const boxId = searchParams.get("boxId");
+  const itemId = searchParams.get("itemId");
 
   useEffect(() => {
-    async function fetchPattern() {
-      if (!boxId) return;
+    async function fetchPatternAndImage() {
+      if (!boxId || !itemId) return;
 
       try {
-        // Fetch the box document using boxId from query params
+        // Fetch the box document for pattern file
         const boxDoc = await getDoc(doc(db, "boxes", boxId));
         if (boxDoc.exists()) {
           const boxData = boxDoc.data();
@@ -26,12 +31,33 @@ export default function FindItem() {
         } else {
           toast.error("Box not found.");
         }
+
+        // Fetch the item document for image
+        const itemDoc = await getDoc(doc(db, "items", itemId));
+        if (itemDoc.exists()) {
+          const itemData = itemDoc.data();
+          setItemImage(itemData.image || null);
+
+          // Dynamically get image aspect ratio
+          if (itemData.image) {
+            const img = new window.Image();
+            img.onload = () => {
+              setImageAspect(img.width / img.height);
+            };
+            img.src = itemData.image;
+          }
+        } else {
+          toast.error("Item not found.");
+        }
       } catch (err) {
-        toast.error("Failed to fetch pattern file.");
+        toast.error("Failed to fetch pattern file or item image.");
       }
     }
-    fetchPattern();
-  }, [boxId]);
+    fetchPatternAndImage();
+  }, [boxId, itemId]);
+
+  // Calculate height based on aspect ratio and marker width
+  const imageHeight = imageAspect ? markerWidth / imageAspect : 1;
 
   return (
     <RequireAuth>
@@ -43,121 +69,17 @@ export default function FindItem() {
         {/* @ts-expect-error: custom elements not recognized by TypeScript */}
         <a-camera-static />
 
-        {patternFile && (
-          // @ts-expect-error: a-marker is a custom element not recognized by TypeScript
+        {patternFile && itemImage && imageAspect && (
+          // @ts-expect-error: custom elements not recognized by TypeScript
           <a-marker type="pattern" url={patternFile}>
             {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-            <a-entity scale="0.35 0.35 0.35">
-              {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-              <a-box
-                position="-1.65 0 0"
-                rotation="0 0 0"
-                scale="0.2 0.04 0.04"
-                color="#f7bf00"
-                shadow=""
-              />
-              {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-              <a-box
-                position="1.65 0 0"
-                rotation="0 0 0"
-                scale="0.2 0.04 0.04"
-                color="#f7bf00"
-                shadow=""
-              />
-              {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-              <a-box
-                position="0 0 -1.65"
-                rotation="0 0 0"
-                scale="0.04 0.04 0.2"
-                color="#f7bf00"
-                shadow=""
-              />
-              {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-              <a-box
-                position="0 0 1.65"
-                rotation="0 0 0"
-                scale="0.04 0.04 0.2"
-                color="#f7bf00"
-                shadow=""
-              />
-              {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-              <a-box
-                position="0 0 -1.4"
-                rotation="0 0 0"
-                scale="2.88 0.08 0.08"
-                color="#f7bf00"
-                shadow=""
-              />
-              {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-              <a-box
-                position="0 0 1.4"
-                rotation="0 0 0"
-                scale="2.88 0.08 0.08"
-                color="#f7bf00"
-                shadow=""
-              />
-              {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-              <a-box
-                position="-1.4 0 0"
-                rotation="0 0 0"
-                scale="0.08 0.08 2.88"
-                color="#f7bf00"
-                shadow=""
-              />
-              {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-              <a-box
-                position="1.4 0 0"
-                rotation="0 0 0"
-                scale="0.08 0.08 2.88"
-                color="#f7bf00"
-                shadow=""
-              />
-              {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-              <a-entity rotation="0 45 0" scale="0.62 0.62 0.62">
-                {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-                <a-box
-                  position="0 0 -1.4"
-                  rotation="0 0 0"
-                  scale="2.88 0.08 0.08"
-                  color="#f7bf00"
-                  shadow=""
-                />
-                {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-                <a-box
-                  position="0 0 1.4"
-                  rotation="0 0 0"
-                  scale="2.88 0.08 0.08"
-                  color="#f7bf00"
-                  shadow=""
-                />
-                {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-                <a-box
-                  position="-1.4 0 0"
-                  rotation="0 0 0"
-                  scale="0.08 0.08 2.88"
-                  color="#f7bf00"
-                  shadow=""
-                />
-                {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-                <a-box
-                  position="1.4 0 0"
-                  rotation="0 0 0"
-                  scale="0.08 0.08 2.88"
-                  color="#f7bf00"
-                  shadow=""
-                />
-                {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-              </a-entity>
-              {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-              <a-box
-                position="0 0 0"
-                rotation="0 0 0"
-                scale="0.120 0.120 0.120"
-                color="#f7bf00"
-                shadow=""
-              />
-              {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-            </a-entity>
+            <a-image
+              src={itemImage}
+              width={markerWidth}
+              height={imageHeight}
+              position="0 0 0"
+              rotation="-90 0 0"
+            />
             {/* @ts-expect-error: custom elements not recognized by TypeScript */}
           </a-marker>
         )}
