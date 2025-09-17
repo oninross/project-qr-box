@@ -209,7 +209,7 @@ function BoxComponent() {
                 variant="ghost"
                 className="flex items-center w-full px-4 py-2 text-right text-gray-800 hover:bg-gray-100 justify-end text-right"
                 onClick={() => {
-                  setMenuOpen(false); /* TODO: View box details logic */
+                  setMenuOpen(false);
                   router.push(`/box-details?boxId=${boxId}&boxCode=${boxCode}`);
                 }}
               >
