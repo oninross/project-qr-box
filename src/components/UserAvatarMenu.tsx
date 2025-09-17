@@ -75,7 +75,7 @@ export default function UserAvatarMenu({ size = 48 }: { size?: number }) {
       </Button>
       {open && (
         <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded shadow-lg z-50">
-          <Button
+          {/* <Button
             variant="ghost"
             className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800"
             onClick={() => {
@@ -84,7 +84,7 @@ export default function UserAvatarMenu({ size = 48 }: { size?: number }) {
             }}
           >
             Profile
-          </Button>
+          </Button> */}
           <Button
             variant="ghost"
             className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-800"

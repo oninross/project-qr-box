@@ -10,6 +10,13 @@ export default function Scan() {
   const scannerId = "qr-scanner";
 
   useEffect(() => {
+    // Lock body and html to viewport size and prevent scroll
+    document.body.style.overflow = "hidden";
+    document.body.style.width = "100vw";
+    document.body.style.height = "100vh";
+    document.documentElement.style.width = "100vw";
+    document.documentElement.style.height = "100vh";
+
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
     if (!baseUrl) {
       toast.error("Missing NEXT_PUBLIC_BASE_URL environment variable.");
@@ -34,10 +41,8 @@ export default function Scan() {
           { facingMode: "environment" },
           {
             fps: 10,
-            qrbox: (viewfinderWidth, viewfinderHeight) => {
-              const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
-              const boxSize = Math.floor(minEdge * 0.8);
-              return { width: boxSize, height: boxSize };
+            qrbox: () => {
+              return { width: 250, height: 250 };
             },
             aspectRatio: window.innerWidth / window.innerHeight,
           },
@@ -67,6 +72,18 @@ export default function Scan() {
       startScanner();
     }
 
+    // Try to make the video element fill the screen
+    const interval = setInterval(() => {
+      const video = document.querySelector(`#${scannerId} video`) as HTMLVideoElement | null;
+      if (video) {
+        video.style.objectFit = "cover";
+        video.style.width = "100vw";
+        video.style.height = "100vh";
+        video.setAttribute("playsinline", "true");
+        clearInterval(interval);
+      }
+    }, 200);
+
     return () => {
       cancelled = true;
       if (html5QrCode) {
@@ -75,16 +92,33 @@ export default function Scan() {
           html5QrCode.clear();
         } catch {}
       }
+      // Restore body/html styles
+      document.body.style.overflow = "";
+      document.body.style.width = "";
+      document.body.style.height = "";
+      document.documentElement.style.width = "";
+      document.documentElement.style.height = "";
+      clearInterval(interval);
     };
   }, []);
 
   return (
     <RequireAuth>
-      <div className="fixed inset-0 w-full h-full bg-black flex flex-col items-center justify-center">
+      <div
+        className="fixed inset-0 w-screen h-screen bg-black flex flex-col items-center justify-center"
+        style={{
+          width: "100vw",
+          height: "100vh",
+          position: "fixed",
+          top: 0,
+          left: 0,
+          zIndex: 9999,
+        }}
+      >
         <div
           id={scannerId}
           className="absolute inset-0 w-full h-full bg-black"
-          style={{ zIndex: 10 }}
+          style={{ zIndex: 10, width: "100vw", height: "100vh" }}
         />
       </div>
     </RequireAuth>
