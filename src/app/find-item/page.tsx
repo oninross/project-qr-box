@@ -15,8 +15,6 @@ import { toast } from "sonner";
 import RequireAuth from "@/components/RequireAuth";
 import { db } from "@/lib/firebase";
 
-const markerWidth = 1; // 1 meter wide marker
-
 function FindItemComponent() {
   const [patternFile, setPatternFile] = useState<string | null>(null);
   const [itemImage, setItemImage] = useState<string | null>(null);
@@ -108,9 +106,6 @@ function FindItemComponent() {
     };
   }, [boxId, itemId]);
 
-  // Calculate height based on aspect ratio and marker width
-  const imageHeight = imageAspect ? markerWidth / imageAspect : 1;
-
   return (
     <RequireAuth>
       {/* @ts-expect-error: custom elements not recognized by TypeScript */}
@@ -125,13 +120,129 @@ function FindItemComponent() {
           // @ts-expect-error: custom elements not recognized by TypeScript
           <a-marker type="pattern" url={patternFile}>
             {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-            <a-image
-              src={itemImage}
-              width={markerWidth}
-              height={imageHeight}
-              position="0 0 0"
-              rotation="-90 0 0"
-            />
+            <a-entity scale="0.35 0.35 0.35">
+              {/* @ts-expect-error: custom elements not recognized by TypeScript */}
+              <a-box
+                position="-1.65 0 0"
+                rotation="0 0 0"
+                scale="0.2 0.04 0.04"
+                color="#f7bf00"
+                shadow
+              />
+
+              {/* @ts-expect-error: custom elements not recognized by TypeScript */}
+              <a-box
+                position="1.65 0 0"
+                rotation="0 0 0"
+                scale="0.2 0.04 0.04"
+                color="#f7bf00"
+                shadow
+              />
+
+              {/* @ts-expect-error: custom elements not recognized by TypeScript */}
+              <a-box
+                position="0 0 -1.65"
+                rotation="0 0 0"
+                scale="0.04 0.04 0.2"
+                color="#f7bf00"
+                shadow
+              />
+
+              {/* @ts-expect-error: custom elements not recognized by TypeScript */}
+              <a-box
+                position="0 0 1.65"
+                rotation="0 0 0"
+                scale="0.04 0.04 0.2"
+                color="#f7bf00"
+                shadow
+              />
+
+              {/* @ts-expect-error: custom elements not recognized by TypeScript */}
+              <a-box
+                position="0 0 -1.4"
+                rotation="0 0 0"
+                scale="2.88 0.08 0.08"
+                color="#f7bf00"
+                shadow
+              />
+
+              {/* @ts-expect-error: custom elements not recognized by TypeScript */}
+              <a-box
+                position="0 0 1.4"
+                rotation="0 0 0"
+                scale="2.88 0.08 0.08"
+                color="#f7bf00"
+                shadow
+              />
+
+              {/* @ts-expect-error: custom elements not recognized by TypeScript */}
+              <a-box
+                position="-1.4 0 0"
+                rotation="0 0 0"
+                scale="0.08 0.08 2.88"
+                color="#f7bf00"
+                shadow
+              />
+
+              {/* @ts-expect-error: custom elements not recognized by TypeScript */}
+              <a-box
+                position="1.4 0 0"
+                rotation="0 0 0"
+                scale="0.08 0.08 2.88"
+                color="#f7bf00"
+                shadow
+              />
+
+              {/* @ts-expect-error: custom elements not recognized by TypeScript */}
+              <a-entity rotation="0 45 0" scale="0.62 0.62 0.62">
+                {/* @ts-expect-error: custom elements not recognized by TypeScript */}
+                <a-box
+                  position="0 0 -1.4"
+                  rotation="0 0 0"
+                  scale="2.88 0.08 0.08"
+                  color="#f7bf00"
+                  shadow
+                />
+
+                {/* @ts-expect-error: custom elements not recognized by TypeScript */}
+                <a-box
+                  position="0 0 1.4"
+                  rotation="0 0 0"
+                  scale="2.88 0.08 0.08"
+                  color="#f7bf00"
+                  shadow
+                />
+
+                {/* @ts-expect-error: custom elements not recognized by TypeScript */}
+                <a-box
+                  position="-1.4 0 0"
+                  rotation="0 0 0"
+                  scale="0.08 0.08 2.88"
+                  color="#f7bf00"
+                  shadow
+                />
+
+                {/* @ts-expect-error: custom elements not recognized by TypeScript */}
+                <a-box
+                  position="1.4 0 0"
+                  rotation="0 0 0"
+                  scale="0.08 0.08 2.88"
+                  color="#f7bf00"
+                  shadow
+                />
+                {/* @ts-expect-error: custom elements not recognized by TypeScript */}
+              </a-entity>
+
+              {/* @ts-expect-error: custom elements not recognized by TypeScript */}
+              <a-box
+                position="0 0 0"
+                rotation="0 0 0"
+                scale="0.120 0.120 0.120"
+                color="#f7bf00"
+                shadow
+              />
+              {/* @ts-expect-error: custom elements not recognized by TypeScript */}
+            </a-entity>
             {/* @ts-expect-error: custom elements not recognized by TypeScript */}
           </a-marker>
         )}
