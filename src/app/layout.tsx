@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-sync-scripts */
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Toaster } from "sonner";
@@ -72,15 +71,9 @@ export default function RootLayout({
         <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon/favicon-32x32.png" />
         <link rel="icon" type="image/png" sizes="96x96" href="/images/favicon/favicon-96x96.png" />
         <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon/favicon-16x16.png" />
-
-        <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
-
-        {/* <script src="https://aframe.io/releases/0.8.0/aframe.min.js"></script>
-        <script src="https://cdn.rawgit.com/jeromeetienne/AR.js/1.6.0/aframe/build/aframe-ar.js"></script> */}
       </head>
 
-      <body className="arjs antialiased" style={{ margin: 0, overflow: "hidden" }}>
+      <body>
         <Analytics />
 
         <SpeedInsights />
