@@ -103,7 +103,7 @@ function AddItemComponent() {
       toast.success("Item saved!");
       router.push(`/box?boxId=${boxIdString}&boxCode=${boxCode}`);
     } catch (error) {
-      toast.error("Error saving item.");
+      toast.error(`Error saving item. (${error})`);
       console.error(error);
     } finally {
       setSaving(false); // Reset saving state
