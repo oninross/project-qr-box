@@ -4,10 +4,16 @@ import { doc, getDoc, deleteDoc, collection, getDocs } from "firebase/firestore"
 import { MoreVertical, Trash2, Pencil, Plus } from "lucide-react";
 import Image from "next/image";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useState, useCallback } from "react";
 
 import Breadcrumbs from "@/components/Breadcrumbs";
 import RequireAuth from "@/components/RequireAuth";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -50,6 +56,32 @@ function BoxComponent() {
   const [deleting, setDeleting] = useState(false);
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const [qrSrc, setQrSrc] = useState<string | null>(null);
+  const [qrLoading, setQrLoading] = useState(false);
+  const [qrError, setQrError] = useState<string | null>(null);
+  const [accordionOpen, setAccordionOpen] = useState(false);
+
+  const handleAccordionChange = useCallback(
+    async (value: string) => {
+      if (value === "box-info" && !qrSrc && !qrLoading && boxId && boxCode) {
+        setQrLoading(true);
+        setQrError(null);
+        try {
+          const res = await fetch(`/api/getQrCode?boxId=${boxId}&boxCode=${boxCode}`);
+          if (!res.ok) throw new Error("Failed to fetch QR code");
+          const blob = await res.blob();
+          setQrSrc(URL.createObjectURL(blob));
+        } catch {
+          setQrError("Could not load QR code.");
+        } finally {
+          setQrLoading(false);
+        }
+      }
+      setAccordionOpen(value === "box-info");
+    },
+    [boxId, boxCode, qrSrc, qrLoading]
+  );
 
   useEffect(() => {
     async function fetchBox() {
@@ -122,11 +154,69 @@ function BoxComponent() {
           <UserAvatar size={48} />
         </div>
 
-        {box?.description && <p className="text-gray-400 mb-4">{box?.description}</p>}
-
         {error && <p className="text-red-600 mb-4">{error}</p>}
 
         <Breadcrumbs />
+
+        {/* About Box Accordion */}
+        <Accordion
+          type="single"
+          collapsible
+          className="mb-6"
+          value={accordionOpen ? "box-info" : undefined}
+          onValueChange={handleAccordionChange}
+        >
+          <AccordionItem value="box-info">
+            <AccordionTrigger className="p-0">Display marker</AccordionTrigger>
+            <AccordionContent className="py-4">
+              {qrLoading && <div>Loading QR code...</div>}
+              {qrError && <div className="text-red-600">{qrError}</div>}
+              {qrSrc && (
+                <>
+                  <Image
+                    src={qrSrc}
+                    alt="QR & AR Marker"
+                    width={320}
+                    height={320}
+                    className="rounded shadow"
+                    style={{ width: "100%", height: "auto", margin: "auto", maxWidth: "320px" }}
+                    unoptimized
+                  />
+                  <div className="flex justify-center mt-4">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        const printWindow = window.open("");
+                        if (printWindow) {
+                          printWindow.document.write(`
+                            <html>
+                              <head>
+                                <title>Print Marker</title>
+                                <style>
+                                  body { margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+                                  img { max-width: 100%; max-height: 100vh; }
+                                </style>
+                              </head>
+                              <body>
+                                <img src="${qrSrc}" alt="QR & AR Marker" />
+                                <script>
+                                  window.onload = function() { window.print(); }
+                                </script>
+                              </body>
+                            </html>
+                          `);
+                          printWindow.document.close();
+                        }
+                      }}
+                    >
+                      Print marker
+                    </Button>
+                  </div>
+                </>
+              )}
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
 
         {/* Loading, Empty, or Cards */}
         {loading ? (

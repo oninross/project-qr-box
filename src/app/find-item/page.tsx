@@ -9,16 +9,13 @@ declare global {
   }
 }
 import { useSearchParams } from "next/navigation";
-import React, { Suspense, useEffect, useState } from "react";
+import React, { Suspense, useEffect } from "react";
 import { toast } from "sonner";
 
 import RequireAuth from "@/components/RequireAuth";
 import { db } from "@/lib/firebase";
 
 function FindItemComponent() {
-  const [patternFile, setPatternFile] = useState<string | null>(null);
-  const [itemImage, setItemImage] = useState<string | null>(null);
-  const [imageAspect, setImageAspect] = useState<number | null>(null);
   const searchParams = useSearchParams();
   const boxId = searchParams.get("boxId");
   const itemId = searchParams.get("itemId");
@@ -32,31 +29,12 @@ function FindItemComponent() {
         const boxDoc = await getDoc(doc(db, "boxes", boxId));
         if (boxDoc.exists()) {
           const boxData = boxDoc.data();
-          setPatternFile(boxData.patternFile || null);
 
           if (boxData.patternFile) {
             window.sessionStorage.setItem("arjs-patt", boxData.patternFile);
           }
         } else {
           toast.error("Box not found.");
-        }
-
-        // Fetch the item document for image
-        const itemDoc = await getDoc(doc(db, "items", itemId));
-        if (itemDoc.exists()) {
-          const itemData = itemDoc.data();
-          setItemImage(itemData.image || null);
-
-          // Dynamically get image aspect ratio
-          if (itemData.image) {
-            const img = new window.Image();
-            img.onload = () => {
-              setImageAspect(img.width / img.height);
-            };
-            img.src = itemData.image;
-          }
-        } else {
-          toast.error("Item not found.");
         }
       } catch (err) {
         toast.error(`Failed to fetch pattern file or item image. (${err})`);

@@ -2,7 +2,7 @@
 
 import exifr from "exifr";
 import { getAuth } from "firebase/auth";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp, getDocs, query, where } from "firebase/firestore";
 import { ImageIcon, Save } from "lucide-react";
 import Image from "next/image";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -27,7 +27,25 @@ function AddItemComponent() {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [imgOrientation, setImgOrientation] = useState<number | null>(null);
   const [saving, setSaving] = useState(false); // Add saving state
+  const [itemCount, setItemCount] = useState<number>(0);
+  const maxItems = 10;
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Fetch item count for this box
+  useEffect(() => {
+    async function fetchItemCount() {
+      if (!boxIdString) return;
+      try {
+        const q = query(collection(db, "items"), where("boxId", "==", boxIdString));
+        const snapshot = await getDocs(q);
+        setItemCount(snapshot.size);
+      } catch (error) {
+        toast.error(`Failed to fetch item count. (${error})`);
+        setItemCount(0);
+      }
+    }
+    fetchItemCount();
+  }, [boxIdString]);
 
   // Handler for image placeholder click (desktop: only file upload)
   const handleImageClick = () => {
@@ -57,6 +75,10 @@ function AddItemComponent() {
 
   // Save handler
   const handleSave = async () => {
+    if (itemCount >= maxItems) {
+      toast.error("You can only add up to 10 items in a box.");
+      return;
+    }
     if (!itemName || !imageSrc) {
       toast.error("Please provide an image, and name.");
       return;
@@ -81,7 +103,7 @@ function AddItemComponent() {
       toast.success("Item saved!");
       router.push(`/box?boxId=${boxIdString}&boxCode=${boxCode}`);
     } catch (error) {
-      toast.error("Error saving item.");
+      toast.error(`Error saving item. (${error})`);
       console.error(error);
     } finally {
       setSaving(false); // Reset saving state
@@ -166,13 +188,19 @@ function AddItemComponent() {
           </CardContent>
         </Card>
 
+        {itemCount >= maxItems && (
+          <div className="text-red-600 text-center mt-4">
+            This box already has the maximum of {maxItems} items.
+          </div>
+        )}
+
         {/* Floating Action Button */}
         <Button
           type="button"
           onClick={handleSave}
           className="fixed bottom-22 right-6 w-12 h-12 rounded-full bg-green-600 text-white shadow-lg hover:bg-green-700 focus:outline-none z-50 transition-all duration-200 ease-out hover:scale-110"
           aria-label="Save"
-          disabled={saving} // Disable while saving
+          disabled={saving || itemCount >= maxItems}
         >
           <Save />
         </Button>
