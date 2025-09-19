@@ -2,7 +2,6 @@
 
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { Save } from "lucide-react";
-import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect, useCallback, Suspense } from "react";
@@ -17,7 +16,6 @@ import { db } from "@/lib/firebase";
 function BoxDetailsPage() {
   const [boxName, setBoxName] = useState("");
   const [boxDescription, setBoxDescription] = useState("");
-  const [qrSrc, setQrSrc] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [initialBoxName, setInitialBoxName] = useState("");
@@ -49,23 +47,6 @@ function BoxDetailsPage() {
     }
     fetchBox();
   }, [boxId]);
-
-  useEffect(() => {
-    async function fetchQr() {
-      if (!boxId || !boxCode) return;
-      try {
-        const res = await fetch(`/api/getQrCode?boxId=${boxId}&boxCode=${boxCode}`);
-
-        if (!res.ok) throw new Error("Failed to fetch QR code");
-        const blob = await res.blob();
-        console.log("RED ", blob);
-        setQrSrc(URL.createObjectURL(blob));
-      } catch {
-        setQrSrc(null);
-      }
-    }
-    fetchQr();
-  }, [boxId, boxCode]);
 
   const handleSave = useCallback(
     async (e: React.FormEvent) => {
@@ -149,19 +130,6 @@ function BoxDetailsPage() {
               disabled={saving}
             />
           </div>
-          {qrSrc && (
-            <div className="w-full max-w-xs mx-auto rounded shadow" style={{ display: "block" }}>
-              <Image
-                src={qrSrc}
-                alt="QR & AR Marker"
-                width={320}
-                height={320}
-                className="rounded shadow"
-                style={{ width: "100%", height: "auto" }}
-                unoptimized
-              />
-            </div>
-          )}
 
           {/* Floating Action Button */}
           <Button
