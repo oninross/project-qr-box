@@ -33,6 +33,10 @@ function FindItemComponent() {
         if (boxDoc.exists()) {
           const boxData = boxDoc.data();
           setPatternFile(boxData.patternFile || null);
+
+          if (boxData.patternFile) {
+            window.sessionStorage.setItem("arjs-patt", boxData.patternFile);
+          }
         } else {
           toast.error("Box not found.");
         }
@@ -108,146 +112,20 @@ function FindItemComponent() {
 
   return (
     <RequireAuth>
-      {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-      <a-scene
-        embedded
-        arjs="debugUIEnabled: false; maxDetectionRate: 30; trackingMethod: best; patternRatio: 0.9;"
-      >
-        {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-        <a-camera-static />
-
-        {patternFile && itemImage && imageAspect && (
-          // @ts-expect-error: custom elements not recognized by TypeScript
-          <a-marker type="pattern" url={patternFile}>
-            {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-            <a-entity scale="0.35 0.35 0.35">
-              {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-              <a-box
-                position="-1.65 0 0"
-                rotation="0 0 0"
-                scale="0.2 0.04 0.04"
-                color="#f7bf00"
-                shadow
-              />
-
-              {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-              <a-box
-                position="1.65 0 0"
-                rotation="0 0 0"
-                scale="0.2 0.04 0.04"
-                color="#f7bf00"
-                shadow
-              />
-
-              {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-              <a-box
-                position="0 0 -1.65"
-                rotation="0 0 0"
-                scale="0.04 0.04 0.2"
-                color="#f7bf00"
-                shadow
-              />
-
-              {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-              <a-box
-                position="0 0 1.65"
-                rotation="0 0 0"
-                scale="0.04 0.04 0.2"
-                color="#f7bf00"
-                shadow
-              />
-
-              {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-              <a-box
-                position="0 0 -1.4"
-                rotation="0 0 0"
-                scale="2.88 0.08 0.08"
-                color="#f7bf00"
-                shadow
-              />
-
-              {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-              <a-box
-                position="0 0 1.4"
-                rotation="0 0 0"
-                scale="2.88 0.08 0.08"
-                color="#f7bf00"
-                shadow
-              />
-
-              {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-              <a-box
-                position="-1.4 0 0"
-                rotation="0 0 0"
-                scale="0.08 0.08 2.88"
-                color="#f7bf00"
-                shadow
-              />
-
-              {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-              <a-box
-                position="1.4 0 0"
-                rotation="0 0 0"
-                scale="0.08 0.08 2.88"
-                color="#f7bf00"
-                shadow
-              />
-
-              {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-              <a-entity rotation="0 45 0" scale="0.62 0.62 0.62">
-                {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-                <a-box
-                  position="0 0 -1.4"
-                  rotation="0 0 0"
-                  scale="2.88 0.08 0.08"
-                  color="#f7bf00"
-                  shadow
-                />
-
-                {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-                <a-box
-                  position="0 0 1.4"
-                  rotation="0 0 0"
-                  scale="2.88 0.08 0.08"
-                  color="#f7bf00"
-                  shadow
-                />
-
-                {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-                <a-box
-                  position="-1.4 0 0"
-                  rotation="0 0 0"
-                  scale="0.08 0.08 2.88"
-                  color="#f7bf00"
-                  shadow
-                />
-
-                {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-                <a-box
-                  position="1.4 0 0"
-                  rotation="0 0 0"
-                  scale="0.08 0.08 2.88"
-                  color="#f7bf00"
-                  shadow
-                />
-                {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-              </a-entity>
-
-              {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-              <a-box
-                position="0 0 0"
-                rotation="0 0 0"
-                scale="0.120 0.120 0.120"
-                color="#f7bf00"
-                shadow
-              />
-              {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-            </a-entity>
-            {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-          </a-marker>
-        )}
-        {/* @ts-expect-error: custom elements not recognized by TypeScript */}
-      </a-scene>
+      <iframe
+        src="/ar-viewer.html"
+        title="AR Viewer"
+        style={{
+          width: "100vw",
+          height: "100vh",
+          border: "none",
+          margin: 0,
+          padding: 0,
+          overflow: "hidden",
+          display: "block",
+        }}
+        allow="camera; fullscreen"
+      />
     </RequireAuth>
   );
 }
