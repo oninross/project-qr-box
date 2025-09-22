@@ -1,6 +1,7 @@
 "use client";
 
-import { doc, getDoc, deleteDoc, collection, getDocs } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
+import { doc, getDoc, deleteDoc, collection, getDocs, query, where } from "firebase/firestore";
 import { ref as storageRef, deleteObject } from "firebase/storage";
 import { MoreVertical, Trash2, Pencil, Plus } from "lucide-react";
 import Image from "next/image";
@@ -80,15 +81,23 @@ function BoxComponent() {
 
     async function fetchItems() {
       try {
+        const auth = getAuth();
+        const user = auth.currentUser;
+
+        if (!user) return setItems([]);
         const itemsRef = collection(db, "items");
-        const itemsSnap = await getDocs(itemsRef);
-        // Filter items by boxId
-        const filteredItems: Item[] = itemsSnap.docs
-          .map((doc) => ({ id: doc.id, ...doc.data() }) as Item)
-          .filter((item) => item.boxId === boxIdString);
+        const q = query(
+          itemsRef,
+          where("boxId", "==", boxIdString),
+          where("userId", "==", user.uid)
+        );
+        const itemsSnap = await getDocs(q);
+        const filteredItems: Item[] = itemsSnap.docs.map(
+          (doc) => ({ id: doc.id, ...doc.data() }) as Item
+        );
         setItems(filteredItems);
       } catch {
-        // Optionally handle error
+        setItems([]);
       } finally {
         setLoading(false);
       }
@@ -110,29 +119,38 @@ function BoxComponent() {
     if (!boxIdString) return;
     setDeleting(true);
     try {
-      // 1. Delete all items in the box from the root items collection
+      const auth = getAuth();
+      const currentUser = auth.currentUser;
+      if (!currentUser) throw new Error("User not authenticated");
+
       const itemsRef = collection(db, "items");
-      const itemsSnap = await getDocs(itemsRef);
-      const filteredItems = itemsSnap.docs.filter((doc) => doc.data().boxId === boxIdString);
+      const q = query(
+        itemsRef,
+        where("boxId", "==", boxIdString),
+        where("userId", "==", currentUser.uid)
+      );
+      const itemsSnap = await getDocs(q);
+      const filteredItems = itemsSnap.docs.filter(
+        (doc) => doc.data().boxId === boxIdString && doc.data().userId === currentUser?.uid
+      );
 
       // 2. Delete each item's image from Storage (if it exists)
       const deleteImagePromises = filteredItems.map(async (itemDoc) => {
         const itemData = itemDoc.data();
-        if (itemData.image) {
-          try {
-            // Extract the storage path from the download URL
+        try {
+          if (itemData.image) {
             const matches = decodeURIComponent(itemData.image).match(/\/o\/(.*?)\?/);
             const storagePath = matches && matches[1] ? matches[1] : null;
             if (storagePath) {
               const imgRef = storageRef(storage, storagePath);
               await deleteObject(imgRef);
             }
-          } catch {
-            // Ignore errors for missing files
           }
+          // Delete the item document
+          await deleteDoc(itemDoc.ref);
+        } catch (err) {
+          console.error("Failed to delete item or image:", err);
         }
-        // Delete the item document
-        await deleteDoc(itemDoc.ref);
       });
 
       // 3. Delete the box's pattern file and QR code from Storage (if they exist)
@@ -174,7 +192,7 @@ function BoxComponent() {
       window.location.href = "/storage-hub";
     } catch (error) {
       console.error(error);
-      setError("Failed to delete box. Please try again.");
+      setError(`Failed to delete box. Please try again. (${error})`);
     } finally {
       setDeleting(false);
       setShowDeleteModal(false);
