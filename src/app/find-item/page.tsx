@@ -30,8 +30,8 @@ function FindItemComponent() {
         if (boxDoc.exists()) {
           const boxData = boxDoc.data();
 
-          if (boxData.patternFile) {
-            window.sessionStorage.setItem("arjs-patt", boxData.patternFile);
+          if (boxData.patternFileUrl) {
+            window.sessionStorage.setItem("arjs-patt", boxData.patternFileUrl);
           }
         } else {
           toast.error("Box not found.");
