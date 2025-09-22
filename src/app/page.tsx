@@ -1,5 +1,6 @@
 "use client";
 
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -7,6 +8,7 @@ import { useEffect, useState } from "react";
 const FirebaseAuthUI = dynamic(() => import("@/components/FirebaseAuthUI"), { ssr: false });
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+
 export default function Home() {
   const [showBanner, setShowBanner] = useState(false);
   const router = useRouter();
@@ -19,7 +21,16 @@ export default function Home() {
         window.localStorage.removeItem("qrbox-logout-inactivity");
       }
     }
-  }, []);
+
+    // Check if user is logged in and redirect
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        router.replace("/storage-hub");
+      }
+    });
+    return () => unsubscribe();
+  }, [router]);
 
   return (
     <div className="font-sans min-h-screen flex items-center justify-center p-8 pb-20 sm:p-20">
