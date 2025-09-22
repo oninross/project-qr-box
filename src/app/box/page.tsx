@@ -244,8 +244,8 @@ function BoxComponent() {
                   <Image
                     src={item.image}
                     alt={item.name}
-                    width={64}
-                    height={64}
+                    width={128}
+                    height={128}
                     className="w-16 h-16 object-cover rounded"
                     style={{ objectFit: "cover", borderRadius: "0.375rem" }}
                     unoptimized={false}
