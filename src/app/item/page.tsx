@@ -1,6 +1,7 @@
 "use client";
 
 import { doc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { ref as storageRef, deleteObject } from "firebase/storage";
 import { Save, Trash2, MoreVertical, ScanSearch } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -20,7 +21,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import UserAvatarMenu from "@/components/UserAvatarMenu";
-import { db } from "@/lib/firebase";
+import { db, storage } from "@/lib/firebase";
 
 function ItemComponent() {
   const [itemName, setItemName] = useState("");
@@ -59,7 +60,7 @@ function ItemComponent() {
           setError("Item not found.");
         }
       } catch {
-        setError("Failed to fetch item details.");
+        toast.error("Failed to fetch item details.");
       }
     }
     fetchItem();
@@ -105,16 +106,36 @@ function ItemComponent() {
     if (!itemId) return;
     setDeleting(true);
     try {
+      // Get the item document to retrieve the image URL
+      const docRef = doc(db, "items", itemId);
+      const docSnap = await getDoc(docRef);
+      let imageUrl = null;
+      if (docSnap.exists()) {
+        imageUrl = docSnap.data().image;
+      }
+
       // Delete the item document
-      await deleteDoc(doc(db, "items", itemId));
-      // TODO: Delete image from storage if needed
+      await deleteDoc(docRef);
+
+      // Delete the image from storage if it exists
+      if (imageUrl) {
+        // Extract the storage path from the download URL
+        const matches = decodeURIComponent(imageUrl).match(/\/o\/(.*?)\?/);
+        const storagePath = matches && matches[1] ? matches[1] : null;
+        if (storagePath) {
+          const imgRef = storageRef(storage, storagePath);
+          await deleteObject(imgRef);
+        }
+      }
+
       toast.success("Item deleted successfully!");
       // Redirect to box page
       const params = new URLSearchParams();
       if (boxId) params.append("boxId", boxId);
       if (boxCode) params.append("boxCode", boxCode);
       router.push(`/box?${params.toString()}`);
-    } catch {
+    } catch (error) {
+      console.error(error);
       toast.error("Failed to delete item.");
     } finally {
       setDeleting(false);
@@ -168,57 +189,52 @@ function ItemComponent() {
         <Breadcrumbs />
 
         <form className="mt-8" onSubmit={handleSave}>
-          <div className="flex flex-col md:flex-row gap-8">
-            {/* Fields on the left */}
-            <div className="w-full md:w-1/2 flex-1">
-              <div>
-                <label htmlFor="itemName" className="block text-sm font-medium mb-1">
-                  Item Name
-                </label>
-                <input
-                  id="itemName"
-                  name="itemName"
-                  type="text"
-                  className="bg-white w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
-                  placeholder="Enter item name"
-                  required
-                  value={itemName}
-                  onChange={(e) => setItemName(e.target.value)}
-                  disabled={saving}
-                />
-                {error && <p className="text-red-600 text-sm mt-1">{error}</p>}
-              </div>
-              <div className="mt-4">
-                <label htmlFor="itemDescription" className="block text-sm font-medium mb-1">
-                  Item Description
-                </label>
-                <textarea
-                  id="itemDescription"
-                  name="itemDescription"
-                  className="bg-white w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
-                  placeholder="Describe the item (optional)"
-                  rows={3}
-                  value={itemDescription}
-                  onChange={(e) => setItemDescription(e.target.value)}
-                  disabled={saving}
-                />
-              </div>
+          <div className="flex flex-col gap-2">
+            <div>
+              <label htmlFor="itemName" className="block text-sm font-medium mb-1">
+                Item Name
+              </label>
+              <input
+                id="itemName"
+                name="itemName"
+                type="text"
+                className="bg-white w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+                placeholder="Enter item name"
+                required
+                value={itemName}
+                onChange={(e) => setItemName(e.target.value)}
+                disabled={saving}
+              />
+              {error && <p className="text-red-600 text-sm mt-1">{error}</p>}
             </div>
-            {/* Image on the right */}
-            <div className="w-full md:w-1/2 flex items-center justify-center">
-              {itemImage && (
-                <Image
-                  src={itemImage}
-                  alt="Item"
-                  className="w-full rounded shadow"
-                  style={{ display: "block" }}
-                  width={0}
-                  height={0}
-                  unoptimized={false}
-                  priority
-                />
-              )}
+            <div className="mt-4">
+              <label htmlFor="itemDescription" className="block text-sm font-medium mb-1">
+                Item Description
+              </label>
+              <textarea
+                id="itemDescription"
+                name="itemDescription"
+                className="bg-white w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+                placeholder="Describe the item (optional)"
+                rows={3}
+                value={itemDescription}
+                onChange={(e) => setItemDescription(e.target.value)}
+                disabled={saving}
+              />
             </div>
+
+            {itemImage && (
+              <Image
+                src={itemImage}
+                alt="Item"
+                className="w-full rounded shadow"
+                width={400}
+                height={400}
+                style={{ display: "block", maxWidth: 400, margin: "auto" }}
+                unoptimized // Optional: use if you want to bypass Next.js optimization
+                priority
+              />
+            )}
           </div>
         </form>
 

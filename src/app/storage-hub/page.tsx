@@ -40,8 +40,8 @@ export default function StorageHub() {
         const q = query(collection(db, "boxes"), where("userId", "==", user.uid));
         const snap = await getDocs(q);
         setBoxes(snap.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
-      } catch {
-        setError("Failed to load your boxes.");
+      } catch (error) {
+        setError(`Failed to load your boxes. (${error})`);
       } finally {
         setLoading(false);
       }

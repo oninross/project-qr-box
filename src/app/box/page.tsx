@@ -1,6 +1,7 @@
 "use client";
 
 import { doc, getDoc, deleteDoc, collection, getDocs } from "firebase/firestore";
+import { ref as storageRef, deleteObject } from "firebase/storage";
 import { MoreVertical, Trash2, Pencil, Plus } from "lucide-react";
 import Image from "next/image";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -23,8 +24,8 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import UserAvatar from "@/components/UserAvatar";
-import { db } from "@/lib/firebase";
+import UserAvatarMenu from "@/components/UserAvatarMenu";
+import { db, storage } from "@/lib/firebase";
 
 interface Box {
   name?: string;
@@ -57,31 +58,8 @@ function BoxComponent() {
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [qrSrc, setQrSrc] = useState<string | null>(null);
-  const [qrLoading, setQrLoading] = useState(false);
-  const [qrError, setQrError] = useState<string | null>(null);
-  const [accordionOpen, setAccordionOpen] = useState(false);
-
-  const handleAccordionChange = useCallback(
-    async (value: string) => {
-      if (value === "box-info" && !qrSrc && !qrLoading && boxId && boxCode) {
-        setQrLoading(true);
-        setQrError(null);
-        try {
-          const res = await fetch(`/api/getQrCode?boxId=${boxId}&boxCode=${boxCode}`);
-          if (!res.ok) throw new Error("Failed to fetch QR code");
-          const blob = await res.blob();
-          setQrSrc(URL.createObjectURL(blob));
-        } catch {
-          setQrError("Could not load QR code.");
-        } finally {
-          setQrLoading(false);
-        }
-      }
-      setAccordionOpen(value === "box-info");
-    },
-    [boxId, boxCode, qrSrc, qrLoading]
-  );
+  const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
+  const [accordionOpen, setAccordionOpen] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     async function fetchBox() {
@@ -91,6 +69,7 @@ function BoxComponent() {
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           setBox(docSnap.data());
+          setQrCodeUrl(docSnap.data().qrCodeUrl || null); // <-- Fetch QR code URL from Firestore
         } else {
           setError("Box not found.");
         }
@@ -122,23 +101,79 @@ function BoxComponent() {
     }
   }, [boxIdString]);
 
+  const handleAccordionChange = useCallback((value: string | undefined) => {
+    setAccordionOpen(value);
+  }, []);
+
   // Delete box and its items
   async function handleDeleteBox() {
     if (!boxIdString) return;
     setDeleting(true);
     try {
-      // Delete all items in the box (assuming a subcollection "items")
-      const itemsRef = collection(db, "boxes", boxIdString, "items");
+      // 1. Delete all items in the box from the root items collection
+      const itemsRef = collection(db, "items");
       const itemsSnap = await getDocs(itemsRef);
-      const deletePromises = itemsSnap.docs.map((itemDoc) => deleteDoc(itemDoc.ref));
-      await Promise.all(deletePromises);
+      const filteredItems = itemsSnap.docs.filter((doc) => doc.data().boxId === boxIdString);
 
-      // Delete the box document itself
-      await deleteDoc(doc(db, "boxes", boxIdString));
+      // 2. Delete each item's image from Storage (if it exists)
+      const deleteImagePromises = filteredItems.map(async (itemDoc) => {
+        const itemData = itemDoc.data();
+        if (itemData.image) {
+          try {
+            // Extract the storage path from the download URL
+            const matches = decodeURIComponent(itemData.image).match(/\/o\/(.*?)\?/);
+            const storagePath = matches && matches[1] ? matches[1] : null;
+            if (storagePath) {
+              const imgRef = storageRef(storage, storagePath);
+              await deleteObject(imgRef);
+            }
+          } catch {
+            // Ignore errors for missing files
+          }
+        }
+        // Delete the item document
+        await deleteDoc(itemDoc.ref);
+      });
+
+      // 3. Delete the box's pattern file and QR code from Storage (if they exist)
+      const boxDocRef = doc(db, "boxes", boxIdString);
+      const boxDocSnap = await getDoc(boxDocRef);
+      if (boxDocSnap.exists()) {
+        const boxData = boxDocSnap.data();
+        // Pattern file
+        if (boxData.patternFileUrl) {
+          try {
+            const matches = decodeURIComponent(boxData.patternFileUrl).match(/\/o\/(.*?)\?/);
+            const storagePath = matches && matches[1] ? matches[1] : null;
+            if (storagePath) {
+              const pattRef = storageRef(storage, storagePath);
+              await deleteObject(pattRef);
+            }
+          } catch {}
+        }
+        // QR code file
+        if (boxData.qrCodeUrl) {
+          try {
+            const matches = decodeURIComponent(boxData.qrCodeUrl).match(/\/o\/(.*?)\?/);
+            const storagePath = matches && matches[1] ? matches[1] : null;
+            if (storagePath) {
+              const qrRef = storageRef(storage, storagePath);
+              await deleteObject(qrRef);
+            }
+          } catch {}
+        }
+      }
+
+      // 4. Wait for all item deletions (images and docs)
+      await Promise.all(deleteImagePromises);
+
+      // 5. Delete the box document itself
+      await deleteDoc(boxDocRef);
 
       // Optionally, redirect or show a toast
       window.location.href = "/storage-hub";
-    } catch {
+    } catch (error) {
+      console.error(error);
       setError("Failed to delete box. Please try again.");
     } finally {
       setDeleting(false);
@@ -151,72 +186,76 @@ function BoxComponent() {
       <main className="mt-8 mb-24 w-full m-auto max-w-2xl px-6">
         <div className="flex space-between w-full">
           <h1 className="text-4xl mr-auto font-bold">{box?.name ? box?.name : "..."}</h1>
-          <UserAvatar size={48} />
+          <UserAvatarMenu size={48} />
         </div>
 
         {error && <p className="text-red-600 mb-4">{error}</p>}
 
         <Breadcrumbs />
 
-        {/* About Box Accordion */}
-        <Accordion
-          type="single"
-          collapsible
-          className="mb-6"
-          value={accordionOpen ? "box-info" : undefined}
-          onValueChange={handleAccordionChange}
-        >
-          <AccordionItem value="box-info">
-            <AccordionTrigger className="p-0">Display marker</AccordionTrigger>
-            <AccordionContent className="py-4">
-              {qrLoading && <div>Loading QR code...</div>}
-              {qrError && <div className="text-red-600">{qrError}</div>}
-              {qrSrc && (
-                <>
-                  <Image
-                    src={qrSrc}
-                    alt="QR & AR Marker"
-                    width={320}
-                    height={320}
-                    className="rounded shadow"
-                    style={{ width: "100%", height: "auto", margin: "auto", maxWidth: "320px" }}
-                    unoptimized
-                  />
-                  <div className="flex justify-center mt-4">
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        const printWindow = window.open("");
-                        if (printWindow) {
-                          printWindow.document.write(`
-                            <html>
-                              <head>
-                                <title>Print Marker</title>
-                                <style>
-                                  body { margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
-                                  img { max-width: 100%; max-height: 100vh; }
-                                </style>
-                              </head>
-                              <body>
-                                <img src="${qrSrc}" alt="QR & AR Marker" />
-                                <script>
-                                  window.onload = function() { window.print(); }
-                                </script>
-                              </body>
-                            </html>
-                          `);
-                          printWindow.document.close();
-                        }
-                      }}
-                    >
-                      Print marker
-                    </Button>
-                  </div>
-                </>
-              )}
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+        {/* About Box Accordion styled as a Card */}
+        <Card className="mb-6 p-0 cursor-pointer rounded-sm hover:shadow-lg transition w-full">
+          <Accordion
+            type="single"
+            collapsible
+            value={accordionOpen}
+            onValueChange={handleAccordionChange}
+          >
+            <AccordionItem value="box-info">
+              <AccordionTrigger className="p-0 cursor-pointer px-6 py-4 text-sm font-semibold">
+                {accordionOpen ? "Hide marker" : "Display marker"}
+              </AccordionTrigger>
+              <AccordionContent>
+                <CardContent className="py-4">
+                  {!qrCodeUrl && <div>QR code not available.</div>}
+                  {qrCodeUrl && (
+                    <>
+                      <Image
+                        src={qrCodeUrl}
+                        alt="QR & AR Marker"
+                        width={320}
+                        height={320}
+                        className="rounded shadow"
+                        style={{ width: "100%", height: "auto", margin: "auto", maxWidth: "320px" }}
+                        unoptimized
+                      />
+                      <div className="flex justify-center mt-4">
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            const printWindow = window.open("");
+                            if (printWindow) {
+                              printWindow.document.write(`
+                                <html>
+                                  <head>
+                                    <title>Print Marker</title>
+                                    <style>
+                                      body { margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+                                      img { max-width: 100%; max-height: 100vh; }
+                                    </style>
+                                  </head>
+                                  <body>
+                                    <img src="${qrCodeUrl}" alt="QR & AR Marker" />
+                                    <script>
+                                      window.onload = function() { window.print(); }
+                                    </script>
+                                  </body>
+                                </html>
+                              `);
+                              printWindow.document.close();
+                            }
+                          }}
+                        >
+                          Print marker
+                        </Button>
+                      </div>
+                    </>
+                  )}
+                </CardContent>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </Card>
 
         {/* Loading, Empty, or Cards */}
         {loading ? (
@@ -244,15 +283,15 @@ function BoxComponent() {
                   <Image
                     src={item.image}
                     alt={item.name}
-                    width={64}
-                    height={64}
+                    width={128}
+                    height={128}
                     className="w-16 h-16 object-cover rounded"
                     style={{ objectFit: "cover", borderRadius: "0.375rem" }}
                     unoptimized={false}
                   />
                 )}
 
-                <CardContent>
+                <CardContent className="p-0">
                   <p className="font-semibold">{item.name}</p>
                 </CardContent>
               </Card>

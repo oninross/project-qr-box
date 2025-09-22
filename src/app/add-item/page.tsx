@@ -3,6 +3,7 @@
 import exifr from "exifr";
 import { getAuth } from "firebase/auth";
 import { collection, addDoc, serverTimestamp, getDocs, query, where } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { ImageIcon, Save } from "lucide-react";
 import Image from "next/image";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -12,8 +13,8 @@ import { toast } from "sonner";
 import RequireAuth from "@/components/RequireAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import UserAvatar from "@/components/UserAvatar";
-import { db } from "@/lib/firebase";
+import UserAvatarMenu from "@/components/UserAvatarMenu";
+import { db, storage } from "@/lib/firebase";
 
 function AddItemComponent() {
   const params = useSearchParams();
@@ -30,6 +31,7 @@ function AddItemComponent() {
   const [itemCount, setItemCount] = useState<number>(0);
   const maxItems = 10;
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   // Fetch item count for this box
   useEffect(() => {
@@ -55,21 +57,17 @@ function AddItemComponent() {
   // Handler for file input change
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      // Get EXIF orientation
-      try {
-        const orientation = await exifr.orientation(file);
-        setImgOrientation(orientation || 1); // Default to 1 if not found
-      } catch {
-        setImgOrientation(1);
-      }
+    if (!file) return;
 
-      // Read image for preview
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setImageSrc(event.target?.result as string);
-      };
-      reader.readAsDataURL(file);
+    setSelectedFile(file); // keep raw file for upload
+    setImageSrc(URL.createObjectURL(file)); // preview only
+
+    // Optional: still grab EXIF orientation
+    try {
+      const orientation = await exifr.orientation(file);
+      setImgOrientation(orientation || 1);
+    } catch {
+      setImgOrientation(1);
     }
   };
 
@@ -79,11 +77,12 @@ function AddItemComponent() {
       toast.error("You can only add up to 10 items in a box.");
       return;
     }
-    if (!itemName || !imageSrc) {
-      toast.error("Please provide an image, and name.");
+    if (!itemName || !selectedFile) {
+      toast.error("Please provide an image and name.");
       return;
     }
-    setSaving(true); // Set saving to true
+
+    setSaving(true);
     try {
       const auth = getAuth();
       const user = auth.currentUser;
@@ -92,21 +91,35 @@ function AddItemComponent() {
         setSaving(false);
         return;
       }
+
+      // Upload raw file
+      const imagePath = `items/${user.uid}/${boxIdString}/${Date.now()}.jpg`;
+      const imageRef = ref(storage, imagePath);
+
+      await uploadBytes(imageRef, selectedFile, {
+        contentType: selectedFile.type, // ensure correct MIME type
+      });
+
+      // Get download URL
+      const imageUrl = await getDownloadURL(imageRef);
+
+      // Save item in Firestore
       await addDoc(collection(db, "items"), {
         userId: user.uid,
         boxId: boxIdString,
         name: itemName,
         description: itemDescription,
-        image: imageSrc,
+        image: imageUrl,
         createdAt: serverTimestamp(),
       });
+
       toast.success("Item saved!");
       router.push(`/box?boxId=${boxIdString}&boxCode=${boxCode}`);
     } catch (error) {
       toast.error(`Error saving item. (${error})`);
       console.error(error);
     } finally {
-      setSaving(false); // Reset saving state
+      setSaving(false);
     }
   };
 
@@ -126,7 +139,7 @@ function AddItemComponent() {
       <main className="mt-8 w-full m-auto max-w-2xl px-6 relative min-h-screen">
         <div className="flex space-between w-full">
           <h1 className="text-4xl mr-auto font-bold">Add item</h1>
-          <UserAvatar size={48} />
+          <UserAvatarMenu size={48} />
         </div>
 
         <Card className="rounded-sm mt-8">
@@ -172,6 +185,12 @@ function AddItemComponent() {
               placeholder="Item Name"
               value={itemName}
               onChange={(e) => setItemName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleSave();
+                }
+              }}
               disabled={saving} // Disable while saving
               aria-disabled={saving}
             />

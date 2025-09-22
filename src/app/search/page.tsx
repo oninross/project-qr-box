@@ -9,7 +9,7 @@ import { toast } from "sonner";
 
 import BoxSearch from "@/components/BoxSearch";
 import { Card, CardContent } from "@/components/ui/card";
-import UserAvatar from "@/components/UserAvatar";
+import UserAvatarMenu from "@/components/UserAvatarMenu";
 import { auth, db } from "@/lib/firebase";
 
 type Item = {
@@ -96,7 +96,7 @@ function SearchComponent() {
     <main className="max-w-2xl mx-auto px-4 py-8">
       <div className="flex space-between w-full">
         <h1 className="text-4xl mr-auto font-bold">Search Results for &quot;{searchTerm}&quot;</h1>
-        <UserAvatar size={48} />
+        <UserAvatarMenu size={48} />
       </div>
 
       <BoxSearch hasBox initialValue={searchTerm} />
