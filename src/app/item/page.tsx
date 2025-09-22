@@ -168,57 +168,52 @@ function ItemComponent() {
         <Breadcrumbs />
 
         <form className="mt-8" onSubmit={handleSave}>
-          <div className="flex flex-col md:flex-row gap-8">
-            {/* Fields on the left */}
-            <div className="w-full md:w-1/2 flex-1">
-              <div>
-                <label htmlFor="itemName" className="block text-sm font-medium mb-1">
-                  Item Name
-                </label>
-                <input
-                  id="itemName"
-                  name="itemName"
-                  type="text"
-                  className="bg-white w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
-                  placeholder="Enter item name"
-                  required
-                  value={itemName}
-                  onChange={(e) => setItemName(e.target.value)}
-                  disabled={saving}
-                />
-                {error && <p className="text-red-600 text-sm mt-1">{error}</p>}
-              </div>
-              <div className="mt-4">
-                <label htmlFor="itemDescription" className="block text-sm font-medium mb-1">
-                  Item Description
-                </label>
-                <textarea
-                  id="itemDescription"
-                  name="itemDescription"
-                  className="bg-white w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
-                  placeholder="Describe the item (optional)"
-                  rows={3}
-                  value={itemDescription}
-                  onChange={(e) => setItemDescription(e.target.value)}
-                  disabled={saving}
-                />
-              </div>
+          <div className="flex flex-col gap-2">
+            <div>
+              <label htmlFor="itemName" className="block text-sm font-medium mb-1">
+                Item Name
+              </label>
+              <input
+                id="itemName"
+                name="itemName"
+                type="text"
+                className="bg-white w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+                placeholder="Enter item name"
+                required
+                value={itemName}
+                onChange={(e) => setItemName(e.target.value)}
+                disabled={saving}
+              />
+              {error && <p className="text-red-600 text-sm mt-1">{error}</p>}
             </div>
-            {/* Image on the right */}
-            <div className="w-full md:w-1/2 flex items-center justify-center">
-              {itemImage && (
-                <Image
-                  src={itemImage}
-                  alt="Item"
-                  className="w-full rounded shadow"
-                  style={{ display: "block" }}
-                  width={0}
-                  height={0}
-                  unoptimized={false}
-                  priority
-                />
-              )}
+            <div className="mt-4">
+              <label htmlFor="itemDescription" className="block text-sm font-medium mb-1">
+                Item Description
+              </label>
+              <textarea
+                id="itemDescription"
+                name="itemDescription"
+                className="bg-white w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+                placeholder="Describe the item (optional)"
+                rows={3}
+                value={itemDescription}
+                onChange={(e) => setItemDescription(e.target.value)}
+                disabled={saving}
+              />
             </div>
+
+            {itemImage && (
+              <Image
+                src={itemImage}
+                alt="Item"
+                className="w-full rounded shadow"
+                width={400}
+                height={400}
+                style={{ display: "block", maxWidth: 400, margin: "auto" }}
+                unoptimized // Optional: use if you want to bypass Next.js optimization
+                priority
+              />
+            )}
           </div>
         </form>
 

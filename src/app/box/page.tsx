@@ -23,7 +23,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import UserAvatar from "@/components/UserAvatar";
+import UserAvatarMenu from "@/components/UserAvatarMenu";
 import { db } from "@/lib/firebase";
 
 interface Box {
@@ -151,7 +151,7 @@ function BoxComponent() {
       <main className="mt-8 mb-24 w-full m-auto max-w-2xl px-6">
         <div className="flex space-between w-full">
           <h1 className="text-4xl mr-auto font-bold">{box?.name ? box?.name : "..."}</h1>
-          <UserAvatar size={48} />
+          <UserAvatarMenu size={48} />
         </div>
 
         {error && <p className="text-red-600 mb-4">{error}</p>}
@@ -167,7 +167,7 @@ function BoxComponent() {
           onValueChange={handleAccordionChange}
         >
           <AccordionItem value="box-info">
-            <AccordionTrigger className="p-0">Display marker</AccordionTrigger>
+            <AccordionTrigger className="p-0 cursor-pointer">Display marker</AccordionTrigger>
             <AccordionContent className="py-4">
               {qrLoading && <div>Loading QR code...</div>}
               {qrError && <div className="text-red-600">{qrError}</div>}
