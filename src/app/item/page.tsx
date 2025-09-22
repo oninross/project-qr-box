@@ -1,6 +1,7 @@
 "use client";
 
 import { doc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { ref as storageRef, deleteObject } from "firebase/storage";
 import { Save, Trash2, MoreVertical, ScanSearch } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -20,7 +21,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import UserAvatarMenu from "@/components/UserAvatarMenu";
-import { db } from "@/lib/firebase";
+import { db, storage } from "@/lib/firebase";
 
 function ItemComponent() {
   const [itemName, setItemName] = useState("");
@@ -105,9 +106,28 @@ function ItemComponent() {
     if (!itemId) return;
     setDeleting(true);
     try {
+      // Get the item document to retrieve the image URL
+      const docRef = doc(db, "items", itemId);
+      const docSnap = await getDoc(docRef);
+      let imageUrl = null;
+      if (docSnap.exists()) {
+        imageUrl = docSnap.data().image;
+      }
+
       // Delete the item document
-      await deleteDoc(doc(db, "items", itemId));
-      // TODO: Delete image from storage if needed
+      await deleteDoc(docRef);
+
+      // Delete the image from storage if it exists
+      if (imageUrl) {
+        // Extract the storage path from the download URL
+        const matches = decodeURIComponent(imageUrl).match(/\/o\/(.*?)\?/);
+        const storagePath = matches && matches[1] ? matches[1] : null;
+        if (storagePath) {
+          const imgRef = storageRef(storage, storagePath);
+          await deleteObject(imgRef);
+        }
+      }
+
       toast.success("Item deleted successfully!");
       // Redirect to box page
       const params = new URLSearchParams();
