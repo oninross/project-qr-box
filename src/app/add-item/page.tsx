@@ -185,6 +185,12 @@ function AddItemComponent() {
               placeholder="Item Name"
               value={itemName}
               onChange={(e) => setItemName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleSave();
+                }
+              }}
               disabled={saving} // Disable while saving
               aria-disabled={saving}
             />
