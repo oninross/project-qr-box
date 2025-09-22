@@ -38,7 +38,14 @@ function AddItemComponent() {
     async function fetchItemCount() {
       if (!boxIdString) return;
       try {
-        const q = query(collection(db, "items"), where("boxId", "==", boxIdString));
+        const auth = getAuth();
+        const user = auth.currentUser;
+        if (!user) throw new Error("User not authenticated");
+        const q = query(
+          collection(db, "items"),
+          where("boxId", "==", boxIdString),
+          where("userId", "==", user.uid)
+        );
         const snapshot = await getDocs(q);
         setItemCount(snapshot.size);
       } catch (error) {

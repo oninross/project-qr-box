@@ -81,15 +81,23 @@ function BoxComponent() {
 
     async function fetchItems() {
       try {
+        const auth = getAuth();
+        const user = auth.currentUser;
+
+        if (!user) return setItems([]);
         const itemsRef = collection(db, "items");
-        const itemsSnap = await getDocs(itemsRef);
-        // Filter items by boxId
-        const filteredItems: Item[] = itemsSnap.docs
-          .map((doc) => ({ id: doc.id, ...doc.data() }) as Item)
-          .filter((item) => item.boxId === boxIdString);
+        const q = query(
+          itemsRef,
+          where("boxId", "==", boxIdString),
+          where("userId", "==", user.uid)
+        );
+        const itemsSnap = await getDocs(q);
+        const filteredItems: Item[] = itemsSnap.docs.map(
+          (doc) => ({ id: doc.id, ...doc.data() }) as Item
+        );
         setItems(filteredItems);
       } catch {
-        // Optionally handle error
+        setItems([]);
       } finally {
         setLoading(false);
       }
