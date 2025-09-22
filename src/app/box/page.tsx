@@ -127,7 +127,7 @@ function BoxComponent() {
               const imgRef = storageRef(storage, storagePath);
               await deleteObject(imgRef);
             }
-          } catch (err) {
+          } catch {
             // Ignore errors for missing files
           }
         }
@@ -149,7 +149,7 @@ function BoxComponent() {
               const pattRef = storageRef(storage, storagePath);
               await deleteObject(pattRef);
             }
-          } catch (err) {}
+          } catch {}
         }
         // QR code file
         if (boxData.qrCodeUrl) {
@@ -160,7 +160,7 @@ function BoxComponent() {
               const qrRef = storageRef(storage, storagePath);
               await deleteObject(qrRef);
             }
-          } catch (err) {}
+          } catch {}
         }
       }
 
