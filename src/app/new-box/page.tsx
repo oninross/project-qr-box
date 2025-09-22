@@ -1,6 +1,7 @@
 "use client";
 
 import { addDoc, collection, Timestamp, query, where, getDocs } from "firebase/firestore";
+import { ref as storageRef, uploadString, getDownloadURL } from "firebase/storage";
 import { Save } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -11,7 +12,7 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import RequireAuth from "@/components/RequireAuth";
 import { Button } from "@/components/ui/button";
 import UserAvatarMenu from "@/components/UserAvatarMenu";
-import { db, auth } from "@/lib/firebase";
+import { db, auth, storage } from "@/lib/firebase";
 
 export default function AddBox() {
   const [boxName, setBoxName] = useState("");
@@ -81,14 +82,43 @@ export default function AddBox() {
         }
         const pattData = await pattRes.json();
 
-        // 2. Save box details including the pattern file
+        // 2. Upload the pattern file to Firebase Storage
+        const patternPath = `patterns/${user.uid}_${Date.now()}_${boxCode}.patt`;
+        const patternRef = storageRef(storage, patternPath);
+        await uploadString(patternRef, pattData.pattern, "raw");
+        const patternFileUrl = await getDownloadURL(patternRef);
+
+        // 3. Generate the QR code from the API
+        const qrRes = await fetch(`/api/getQrCode?boxId=temp&boxCode=${boxCode}`);
+        if (!qrRes.ok) {
+          toast.error("Failed to generate QR code.");
+          setSaving(false);
+          return;
+        }
+        // Convert PNG blob to data URL
+        const qrBlob = await qrRes.blob();
+        const qrDataUrl = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(qrBlob);
+        });
+
+        // 4. Upload the QR code image to Firebase Storage
+        const qrPath = `qrcodes/${user.uid}_${Date.now()}_${boxCode}.png`;
+        const qrRef = storageRef(storage, qrPath);
+        await uploadString(qrRef, qrDataUrl, "data_url");
+        const qrCodeUrl = await getDownloadURL(qrRef);
+
+        // 5. Save box details including the pattern file URL and QR code URL
         const docRef = await addDoc(collection(db, "boxes"), {
           name: boxName.trim(),
           description: boxDescription.trim(),
           createdAt: Timestamp.now(),
           userId: user.uid,
           boxCode,
-          patternFile: pattData.pattern,
+          patternFileUrl, // <-- Pattern file download URL
+          qrCodeUrl, // <-- QR code image download URL
         });
 
         toast.success("Box created successfully!");
