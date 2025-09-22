@@ -60,7 +60,7 @@ function ItemComponent() {
           setError("Item not found.");
         }
       } catch {
-        setError("Failed to fetch item details.");
+        toast.error("Failed to fetch item details.");
       }
     }
     fetchItem();
@@ -134,7 +134,8 @@ function ItemComponent() {
       if (boxId) params.append("boxId", boxId);
       if (boxCode) params.append("boxCode", boxCode);
       router.push(`/box?${params.toString()}`);
-    } catch {
+    } catch (error) {
+      console.error(error);
       toast.error("Failed to delete item.");
     } finally {
       setDeleting(false);

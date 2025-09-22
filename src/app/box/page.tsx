@@ -1,6 +1,7 @@
 "use client";
 
 import { doc, getDoc, deleteDoc, collection, getDocs } from "firebase/firestore";
+import { ref as storageRef, deleteObject } from "firebase/storage";
 import { MoreVertical, Trash2, Pencil, Plus } from "lucide-react";
 import Image from "next/image";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -24,7 +25,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import UserAvatarMenu from "@/components/UserAvatarMenu";
-import { db } from "@/lib/firebase";
+import { db, storage } from "@/lib/firebase";
 
 interface Box {
   name?: string;
@@ -109,18 +110,70 @@ function BoxComponent() {
     if (!boxIdString) return;
     setDeleting(true);
     try {
-      // Delete all items in the box (assuming a subcollection "items")
-      const itemsRef = collection(db, "boxes", boxIdString, "items");
+      // 1. Delete all items in the box from the root items collection
+      const itemsRef = collection(db, "items");
       const itemsSnap = await getDocs(itemsRef);
-      const deletePromises = itemsSnap.docs.map((itemDoc) => deleteDoc(itemDoc.ref));
-      await Promise.all(deletePromises);
+      const filteredItems = itemsSnap.docs.filter((doc) => doc.data().boxId === boxIdString);
 
-      // Delete the box document itself
-      await deleteDoc(doc(db, "boxes", boxIdString));
+      // 2. Delete each item's image from Storage (if it exists)
+      const deleteImagePromises = filteredItems.map(async (itemDoc) => {
+        const itemData = itemDoc.data();
+        if (itemData.image) {
+          try {
+            // Extract the storage path from the download URL
+            const matches = decodeURIComponent(itemData.image).match(/\/o\/(.*?)\?/);
+            const storagePath = matches && matches[1] ? matches[1] : null;
+            if (storagePath) {
+              const imgRef = storageRef(storage, storagePath);
+              await deleteObject(imgRef);
+            }
+          } catch (err) {
+            // Ignore errors for missing files
+          }
+        }
+        // Delete the item document
+        await deleteDoc(itemDoc.ref);
+      });
+
+      // 3. Delete the box's pattern file and QR code from Storage (if they exist)
+      const boxDocRef = doc(db, "boxes", boxIdString);
+      const boxDocSnap = await getDoc(boxDocRef);
+      if (boxDocSnap.exists()) {
+        const boxData = boxDocSnap.data();
+        // Pattern file
+        if (boxData.patternFileUrl) {
+          try {
+            const matches = decodeURIComponent(boxData.patternFileUrl).match(/\/o\/(.*?)\?/);
+            const storagePath = matches && matches[1] ? matches[1] : null;
+            if (storagePath) {
+              const pattRef = storageRef(storage, storagePath);
+              await deleteObject(pattRef);
+            }
+          } catch (err) {}
+        }
+        // QR code file
+        if (boxData.qrCodeUrl) {
+          try {
+            const matches = decodeURIComponent(boxData.qrCodeUrl).match(/\/o\/(.*?)\?/);
+            const storagePath = matches && matches[1] ? matches[1] : null;
+            if (storagePath) {
+              const qrRef = storageRef(storage, storagePath);
+              await deleteObject(qrRef);
+            }
+          } catch (err) {}
+        }
+      }
+
+      // 4. Wait for all item deletions (images and docs)
+      await Promise.all(deleteImagePromises);
+
+      // 5. Delete the box document itself
+      await deleteDoc(boxDocRef);
 
       // Optionally, redirect or show a toast
       window.location.href = "/storage-hub";
-    } catch {
+    } catch (error) {
+      console.error(error);
       setError("Failed to delete box. Please try again.");
     } finally {
       setDeleting(false);
@@ -238,7 +291,7 @@ function BoxComponent() {
                   />
                 )}
 
-                <CardContent>
+                <CardContent className="p-0">
                   <p className="font-semibold">{item.name}</p>
                 </CardContent>
               </Card>

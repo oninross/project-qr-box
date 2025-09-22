@@ -93,7 +93,7 @@ function AddItemComponent() {
       }
 
       // Upload raw file
-      const imagePath = `items/${boxIdString}/${Date.now()}_${user.uid}.jpg`;
+      const imagePath = `items/${user.uid}/${boxIdString}/${Date.now()}.jpg`;
       const imageRef = ref(storage, imagePath);
 
       await uploadBytes(imageRef, selectedFile, {
