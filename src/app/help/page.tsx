@@ -15,19 +15,31 @@ export default function Help() {
       <section className="mb-8">
         <h2 className="text-2xl font-semibold mb-4">Getting Started</h2>
         <div className="mb-4">
-          <h3 className="font-semibold">Q: How do I set up my first virtual locker?</h3>
+          <h3 className="font-semibold">Q: How do I set up my first box?</h3>
           <ol className="list-decimal list-inside ml-4 mt-2 space-y-1">
-            <li>Create a new locker and name it (e.g., “Garage Storage” or “Board Games”).</li>
+            <li>Create a new box and name it (e.g., “Garage Storage” or “Board Games”).</li>
             <li>Upload photos of your items and label them with titles and descriptions.</li>
-            <li>Print your unique QR &amp; AR markers and stick them on your boxes.</li>
+            <li>Print your unique QR/AR markers and stick them on your boxes.</li>
           </ol>
         </div>
+
         <div className="mb-4">
-          <h3 className="font-semibold">Q: How do I scan a marker?</h3>
+          <h3 className="font-semibold">Q: How do I see the items inside my box?</h3>
           <ol className="list-decimal list-inside ml-4 mt-2 space-y-1">
-            <li>Open the scanner from the app’s home screen.</li>
-            <li>Point your phone at the box’s marker.</li>
-            <li>You’ll see the box contents in its virtual locker.</li>
+            <li>Find the QR/AR marker of the box.</li>
+            <li>Scan the marker using the app or your device’s camera.</li>
+          </ol>
+        </div>
+
+        <div className="mb-4">
+          <h3 className="font-semibold">Q: How do I find an item in a box?</h3>
+          <ol className="list-decimal list-inside ml-4 mt-2 space-y-1">
+            <li>Open the detail page of the item.</li>
+            <li>Tap the green button on the lower right of the screen.</li>
+            <li>Select &quot;Find item&quot;.</li>
+            <li>
+              Point your camera to the QR/AR marker. A green target will appear on the correct box.
+            </li>
           </ol>
         </div>
       </section>
