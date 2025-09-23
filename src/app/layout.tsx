@@ -1,5 +1,6 @@
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Inter } from "next/font/google";
 import { Toaster } from "sonner";
 
 import GlobalNav from "@/components/GlobalNav";
@@ -10,8 +11,10 @@ import "./globals.css";
 
 import type { Metadata } from "next";
 
+const inter = Inter({ subsets: ["latin"] });
+
 export const metadata: Metadata = {
-  title: "Bodega – Your virtual storeroom",
+  title: "Bodega Hub – Your virtual storeroom",
   description:
     "A Smart AR storage web app. Scan, search, and see what’s inside your boxes instantly with a virtual locker.",
 };
@@ -22,7 +25,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={inter.className}>
       <head>
         <link rel="manifest" href="/manifest.json" />
 
