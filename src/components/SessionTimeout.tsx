@@ -1,104 +1,65 @@
 "use client";
-import { useEffect, useRef } from "react";
-import { useRouter, usePathname } from "next/navigation";
-import { signOut } from "firebase/auth";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "@/lib/firebase";
 
-const PUBLIC_PATHS = ["/", "/what-is-bodega"];
+import { useEffect, useRef } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+
+const PUBLIC_PATHS = ["/", "/what-is-bodega", "/terms-of-service", "/privacy-policy"];
 
 function isPublicPath(pathname: string) {
-  // Normalize: remove trailing slash except for root
-  let normalized = pathname;
-  if (normalized.length > 1 && normalized.endsWith("/")) {
-    normalized = normalized.slice(0, -1);
-  }
-  // Also check with and without trailing slash
-  return PUBLIC_PATHS.some(
-    (publicPath) =>
-      normalized === publicPath ||
-      normalized === publicPath + "/" ||
-      normalized.startsWith(publicPath + "/")
-  );
+  let pathOnly = pathname.split("?")[0].replace(/\/+$/, "").toLowerCase();
+  if (pathOnly === "") pathOnly = "/";
+  if (!pathOnly.startsWith("/")) pathOnly = "/" + pathOnly;
+  return PUBLIC_PATHS.includes(pathOnly);
 }
 
+const INACTIVITY_LIMIT = 5 * 60 * 1000; // 5 minutes
+
 export default function SessionTimeout() {
-  const [user, loading] = useAuthState(auth);
   const router = useRouter();
   const pathname = usePathname();
-  const isMounted = useRef(true);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    isMounted.current = true;
-    let timeout: NodeJS.Timeout | null = null;
-    const TIMEOUT = 5 * 60 * 1000; // 5 minutes
+    const auth = getAuth();
 
-    async function handleSignOutAndRedirect() {
-      try {
-        await signOut(auth);
-      } catch (e) {
-        // Optionally log error
-      } finally {
-        if (isMounted.current) {
-          router.replace("/");
+    // Inactivity timer logic
+    function resetTimer() {
+      if (timerRef.current) clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(() => {
+        // Only sign out if user is logged in and not on a public path
+        if (auth.currentUser && !isPublicPath(pathname)) {
+          window.localStorage.setItem("qrbox-logout-inactivity", "1");
+          signOut(auth);
         }
-      }
+      }, INACTIVITY_LIMIT);
     }
 
-    function resetTimeout(broadcast = true) {
-      if (timeout) clearTimeout(timeout);
-      timeout = setTimeout(() => {
-        handleSignOutAndRedirect();
-        if (broadcast) localStorage.setItem("qrbox-session-timeout", Date.now().toString());
-      }, TIMEOUT);
-    }
+    // Listen for user activity
+    const events = ["mousemove", "keydown", "mousedown", "touchstart"];
+    events.forEach((event) => window.addEventListener(event, resetTimer));
+    resetTimer();
 
-    function handleActivity() {
-      resetTimeout();
-    }
-
-    function handleVisibility() {
-      if (document.visibilityState === "visible") {
-        resetTimeout();
-      }
-    }
-
-    window.addEventListener("mousemove", handleActivity);
-    window.addEventListener("keydown", handleActivity);
-    window.addEventListener("focus", handleActivity);
-    document.addEventListener("visibilitychange", handleVisibility);
-
-    // Listen for logout from other tabs
-    function handleStorage(e: StorageEvent) {
-      if (e.key === "qrbox-session-timeout") {
-        handleSignOutAndRedirect();
-      }
-    }
-    window.addEventListener("storage", handleStorage);
-
-    resetTimeout(false);
+    // Clean up
     return () => {
-      isMounted.current = false;
-      if (timeout) clearTimeout(timeout);
-      window.removeEventListener("mousemove", handleActivity);
-      window.removeEventListener("keydown", handleActivity);
-      window.removeEventListener("focus", handleActivity);
-      document.removeEventListener("visibilitychange", handleVisibility);
-      window.removeEventListener("storage", handleStorage);
+      if (timerRef.current) clearTimeout(timerRef.current);
+      events.forEach((event) => window.removeEventListener(event, resetTimer));
     };
-  }, [router]);
+  }, [pathname]);
 
   useEffect(() => {
-    // Debug: log the current path and result
-    // Remove after debugging
-    // console.log("SessionTimeout: pathname", pathname, "isPublicPath", isPublicPath(pathname));
-
-    if (!loading && !user && !isPublicPath(pathname)) {
-      router.replace("/");
-    }
-  }, [user, loading, router, pathname]);
-
-  if (loading) return null; // or a loading spinner
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user && !isPublicPath(pathname)) {
+        const redirectTo =
+          typeof window !== "undefined"
+            ? window.location.pathname + window.location.search
+            : pathname;
+        window.location.replace(`/?redirect=${encodeURIComponent(redirectTo)}`);
+      }
+    });
+    return () => unsubscribe();
+  }, [pathname, router]);
 
   return null;
 }

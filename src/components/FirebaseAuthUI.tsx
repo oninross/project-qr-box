@@ -3,15 +3,17 @@
 import { useEffect } from "react";
 import { auth } from "@/lib/firebase";
 import * as firebaseui from "firebaseui";
-
-// Import CSS dynamically
+import { useRouter, useSearchParams } from "next/navigation";
 import "firebaseui/dist/firebaseui.css";
 
 let firebaseUiInstance: firebaseui.auth.AuthUI | undefined;
 
 export default function FirebaseAuthUI() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get("redirect");
+
   useEffect(() => {
-    // Only initialize if not already initialized
     if (!firebaseUiInstance) {
       firebaseUiInstance = new firebaseui.auth.AuthUI(auth);
     }
@@ -22,15 +24,25 @@ export default function FirebaseAuthUI() {
         { provider: "apple.com" },
         { provider: "password" },
       ],
-      signInSuccessUrl: "/storage-hub",
-      tosUrl: "/",
-      privacyPolicyUrl: "/",
+      callbacks: {
+        signInSuccessWithAuthResult: () => {
+          // Use redirect param if present, else go to /storage-hub
+          if (redirect) {
+            router.replace(redirect);
+          } else {
+            router.replace("/storage-hub");
+          }
+          return false; // Prevent default redirect
+        },
+      },
+      tosUrl: "/terms-of-service",
+      privacyPolicyUrl: "/privacy-policy",
     });
 
     return () => {
       firebaseUiInstance?.reset();
     };
-  }, []);
+  }, [router, redirect]);
 
   return <div id="firebaseui-auth-container" />;
 }

@@ -25,6 +25,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 import UserAvatarMenu from "@/components/UserAvatarMenu";
 import { db, storage } from "@/lib/firebase";
 
@@ -277,11 +278,11 @@ function BoxComponent() {
 
         {/* Loading, Empty, or Cards */}
         {loading ? (
-          <p>
-            <strong>
-              <em>Opening your box</em>
-            </strong>
-          </p>
+          <div className="space-y-4">
+            <Skeleton className="border h-16 w-full" />
+            <Skeleton className="border h-16 w-full" />
+            <Skeleton className="border h-16 w-full" />
+          </div>
         ) : items.length === 0 ? (
           <p>Your box is currently empty</p>
         ) : (

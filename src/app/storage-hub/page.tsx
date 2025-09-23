@@ -10,6 +10,7 @@ import BoxSearch from "@/components/BoxSearch";
 import RequireAuth from "@/components/RequireAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import UserAvatarMenu from "@/components/UserAvatarMenu";
 import { db, auth } from "@/lib/firebase";
 
@@ -61,13 +62,17 @@ export default function StorageHub() {
 
         <BoxSearch hasBox={boxes.length > 0} />
 
-        <div className="mt-8 space-y-4">
+        <div className="my-4 space-y-4">
           {loading && (
-            <p>
-              <strong>
-                <em>Unpacking your storage hub...</em>
-              </strong>
-            </p>
+            <>
+              <Skeleton className="border h-12 w-full mb-12" />
+
+              <div className="space-y-4">
+                <Skeleton className="border h-16 w-full" />
+                <Skeleton className="border h-16 w-full" />
+                <Skeleton className="border h-16 w-full" />
+              </div>
+            </>
           )}
 
           {error && <div className="text-red-600">{error}</div>}
