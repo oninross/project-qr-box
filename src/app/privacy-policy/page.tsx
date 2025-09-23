@@ -10,7 +10,7 @@ export default function PrivacyPoloicy() {
       <Breadcrumbs />
 
       <section className="mb-8">
-        <p className="italic mb-2">Effective Date: [Insert Date]</p>
+        <p className="italic mb-2">Effective Date: 25 September 2025</p>
         <p className="mb-4">
           Bodega (“we,” “our,” or “us”) respects your privacy and is committed to protecting the
           personal information you share with us while using our web application and related
