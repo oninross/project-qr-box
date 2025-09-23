@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 
-const PUBLIC_PATHS = ["/", "/what-is-bodega"];
+const PUBLIC_PATHS = ["/", "/what-is-bodega", "/terms-of-service", "/privacy-policy"];
 
 function isPublicPath(pathname: string) {
   return PUBLIC_PATHS.includes(pathname);

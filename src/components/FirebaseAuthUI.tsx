@@ -35,8 +35,8 @@ export default function FirebaseAuthUI() {
           return false; // Prevent default redirect
         },
       },
-      tosUrl: "/",
-      privacyPolicyUrl: "/",
+      tosUrl: "/terms-of-service",
+      privacyPolicyUrl: "/privacy-policy",
     });
 
     return () => {
