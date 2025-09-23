@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
@@ -12,13 +13,18 @@ export default function RequireAuth({ children }: { children: React.ReactNode })
     const unsubscribe = onAuthStateChanged(auth, (u) => {
       setUser(u);
       if (!u) {
-        router.replace("/");
+        if (typeof window !== "undefined") {
+          const redirectTo = window.location.pathname + window.location.search;
+          if (window.location.pathname !== "/") {
+            window.location.replace(`/?redirect=${encodeURIComponent(redirectTo)}`);
+          }
+        }
       }
     });
     return () => unsubscribe();
   }, [router]);
 
-  if (user === undefined) return null; // or a loading spinner
+  if (user === undefined) return null;
   if (!user) return null;
   return <>{children}</>;
 }
