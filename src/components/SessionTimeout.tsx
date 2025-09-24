@@ -20,7 +20,18 @@ export default function SessionTimeout() {
   const pathname = usePathname();
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Check if we're on localhost
+  const isLocalhost = (process.env.NEXT_PUBLIC_BASE_URL === "localhost" ||
+     process.env.NEXT_PUBLIC_BASE_URL === "127.0.0.1" ||
+     process.env.NEXT_PUBLIC_BASE_URL?.startsWith("192.168."));
+
   useEffect(() => {
+    // Skip inactivity timer on localhost
+    if (isLocalhost) {
+      console.log("SessionTimeout: Disabled on localhost");
+      return;
+    }
+
     const auth = getAuth();
 
     // Inactivity timer logic
