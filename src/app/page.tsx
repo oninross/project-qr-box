@@ -3,21 +3,21 @@
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { toast } from "sonner";
 
-const FirebaseAuthUI = dynamic(() => import("@/components/FirebaseAuthUI"), { ssr: false });
-import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 
+const FirebaseAuthUI = dynamic(() => import("@/components/FirebaseAuthUI"), { ssr: false });
+
 export default function Home() {
-  const [showBanner, setShowBanner] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     // Check for inactivity logout flag in localStorage
     if (typeof window !== "undefined") {
       if (window.localStorage.getItem("qrbox-logout-inactivity") === "1") {
-        setShowBanner(true);
+        toast.error(`You have been logged out due to inactivity`);
         window.localStorage.removeItem("qrbox-logout-inactivity");
       }
     }
@@ -35,12 +35,6 @@ export default function Home() {
   return (
     <div className="font-sans min-h-screen flex items-center justify-center p-8 pb-20 sm:p-20">
       <main className="flex flex-col gap-8 items-center w-full max-w-md">
-        {showBanner && (
-          <Alert className="mb-4 text-center" variant="default">
-            You have been logged out due to inactivity
-          </Alert>
-        )}
-
         <h1 className="text-4xl font-bold text-center w-full">Welcome to your Bodega</h1>
         <p className="text-center w-full">
           Print QR & AR markers, tag your boxes, and see what’s inside instantly with AR. No more

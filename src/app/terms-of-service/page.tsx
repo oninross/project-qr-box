@@ -11,7 +11,7 @@ export default function TermsOfService() {
 
       {/* Terms of Service Section */}
       <section className="mb-8">
-        <p className="italic mb-2">Effective Date: [Insert Date]</p>
+        <p className="italic mb-2">Effective Date: 25 September 2025</p>
         <p className="mb-4">
           Welcome to Bodega! By accessing or using our web application, virtual locker, or related
           services (collectively, the “Service”), you agree to these Terms of Service. If you do not
