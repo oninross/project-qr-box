@@ -1,10 +1,17 @@
 "use client";
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "@/lib/firebase";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export default function Breadcrumbs() {
+interface BreadcrumbsProps {
+  boxName?: string;
+  isLoading?: boolean;
+}
+
+export default function Breadcrumbs({ boxName, isLoading = false }: BreadcrumbsProps) {
   const pathname = usePathname();
   const segments = pathname.split("/").filter(Boolean);
   const [user] = useAuthState(auth);
@@ -26,7 +33,23 @@ export default function Breadcrumbs() {
 
         {segments.map((seg, idx) => {
           const href = "/" + segments.slice(0, idx + 1).join("/");
-          const label = seg.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
+          let label = seg.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
+
+          // Use boxName prop if available and we're on the "box" segment
+          if (seg === "box") {
+            if (isLoading) {
+              // Show skeleton while loading
+              return (
+                <li key={href} className="flex items-center">
+                  <span className="mx-2">/</span>
+                  <Skeleton className="h-4 w-24" />
+                </li>
+              );
+            } else if (boxName) {
+              label = boxName;
+            }
+          }
+
           return (
             <li key={href} className="flex items-center">
               <span className="mx-2">/</span>
