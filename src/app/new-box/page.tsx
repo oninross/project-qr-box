@@ -12,7 +12,6 @@ import {
 } from "firebase/firestore";
 import { ref as storageRef, uploadString, getDownloadURL } from "firebase/storage";
 import { Save } from "lucide-react";
-import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { useCallback } from "react";
 import { toast } from "sonner";
@@ -28,8 +27,6 @@ export default function AddBox() {
   const [boxDescription, setBoxDescription] = useState("");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
-
-  const router = useRouter();
 
   async function generateUniqueBoxCode() {
     // Try up to 10 times to avoid infinite loop
@@ -151,7 +148,7 @@ export default function AddBox() {
         setSaving(false);
       }
     },
-    [boxName, boxDescription, router]
+    [boxName, boxDescription]
   );
 
   useEffect(() => {
