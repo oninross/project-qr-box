@@ -1,6 +1,15 @@
 "use client";
 
-import { addDoc, collection, Timestamp, query, where, getDocs } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  Timestamp,
+  query,
+  where,
+  getDocs,
+  updateDoc,
+  doc,
+} from "firebase/firestore";
 import { ref as storageRef, uploadString, getDownloadURL } from "firebase/storage";
 import { Save } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -73,7 +82,7 @@ export default function AddBox() {
           return;
         }
 
-        // 1. Generate the pattern file from the API
+        // 1. Generate the pattern file from the API (still use temp for pattern)
         const pattRes = await fetch(`/api/createPattFile?boxId=temp&boxCode=${boxCode}`);
         if (!pattRes.ok) {
           toast.error("Failed to generate pattern file.");
@@ -88,13 +97,27 @@ export default function AddBox() {
         await uploadString(patternRef, pattData.pattern, "raw");
         const patternFileUrl = await getDownloadURL(patternRef);
 
-        // 3. Generate the QR code from the API
-        const qrRes = await fetch(`/api/getQrCode?boxId=temp&boxCode=${boxCode}`);
+        // 3. Create the Firestore document FIRST to get the real boxId
+        const docRef = await addDoc(collection(db, "boxes"), {
+          name: boxName.trim(),
+          description: boxDescription.trim(),
+          createdAt: Timestamp.now(),
+          userId: user.uid,
+          boxCode,
+          patternFileUrl, // <-- Pattern file download URL
+          qrCodeUrl: "", // <-- Will be updated after QR code generation
+        });
+
+        const realBoxId = docRef.id;
+
+        // 4. Now generate the QR code with the REAL boxId
+        const qrRes = await fetch(`/api/getQrCode?boxId=${realBoxId}&boxCode=${boxCode}`);
         if (!qrRes.ok) {
           toast.error("Failed to generate QR code.");
           setSaving(false);
           return;
         }
+
         // Convert PNG blob to data URL
         const qrBlob = await qrRes.blob();
         const qrDataUrl = await new Promise<string>((resolve, reject) => {
@@ -104,27 +127,23 @@ export default function AddBox() {
           reader.readAsDataURL(qrBlob);
         });
 
-        // 4. Upload the QR code image to Firebase Storage
+        // 5. Upload the QR code image to Firebase Storage
         const qrPath = `qrcodes/${user.uid}_${Date.now()}_${boxCode}.png`;
         const qrRef = storageRef(storage, qrPath);
         await uploadString(qrRef, qrDataUrl, "data_url");
         const qrCodeUrl = await getDownloadURL(qrRef);
 
-        // 5. Save box details including the pattern file URL and QR code URL
-        const docRef = await addDoc(collection(db, "boxes"), {
-          name: boxName.trim(),
-          description: boxDescription.trim(),
-          createdAt: Timestamp.now(),
-          userId: user.uid,
-          boxCode,
-          patternFileUrl, // <-- Pattern file download URL
-          qrCodeUrl, // <-- QR code image download URL
+        // 6. Update the document with the QR code URL
+        await updateDoc(doc(db, "boxes", realBoxId), {
+          qrCodeUrl: qrCodeUrl,
         });
 
+        console.log("Document written with ID: ", realBoxId);
+
         toast.success("Box created successfully!");
-        setTimeout(() => {
-          router.push(`/box?boxId=${docRef.id}&boxCode=${boxCode}`);
-        }, 3000);
+        // setTimeout(() => {
+        //   router.push(`/box?boxId=${realBoxId}&boxCode=${boxCode}`);
+        // }, 1500);
       } catch (err) {
         console.error("AddBox error:", err);
         toast.error("Failed to save box. Please try again.");
