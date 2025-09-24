@@ -138,8 +138,6 @@ export default function AddBox() {
           qrCodeUrl: qrCodeUrl,
         });
 
-        console.log("Document written with ID: ", realBoxId);
-
         toast.success("Box created successfully!");
         setTimeout(() => {
           router.push(`/box?boxId=${realBoxId}&boxCode=${boxCode}`);
