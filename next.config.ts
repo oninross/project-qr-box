@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 
+/** @type {import('next').NextConfig} */
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
@@ -12,6 +13,28 @@ const nextConfig: NextConfig = {
         hostname: "firebasestorage.googleapis.com",
       },
     ],
+  },
+  async headers() {
+    return [
+      {
+        source: "/ar-viewer.html",
+        headers: [
+          {
+            key: "Cross-Origin-Embedder-Policy",
+            value: "unsafe-none",
+          },
+          {
+            key: "Cross-Origin-Opener-Policy",
+            value: "unsafe-none",
+          },
+          {
+            key: "Permissions-Policy",
+            value:
+              "camera=*, microphone=*, fullscreen=*, autoplay=*, encrypted-media=*, gyroscope=*, accelerometer=*, magnetometer=*",
+          },
+        ],
+      },
+    ];
   },
 };
 
