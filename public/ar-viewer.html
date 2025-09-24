@@ -59,9 +59,13 @@
     <script>
       window.addEventListener("DOMContentLoaded", function () {
         var patt = sessionStorage.getItem("arjs-patt");
+        console.log("Pattern URL :::", patt); // Add this line
         if (patt) {
           var marker = document.getElementById("dynamic-marker");
           marker.setAttribute("url", patt);
+          console.log("Pattern set successfully :::"); // Add this line
+        } else {
+          console.error("No pattern found in sessionStorage :::");
         }
       });
     </script>
