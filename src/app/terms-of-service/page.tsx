@@ -1,6 +1,8 @@
+import { Suspense } from "react";
+
 import Breadcrumbs from "@/components/Breadcrumbs";
 
-export default function TermsOfService() {
+function TermsOfServiceComponent() {
   return (
     <main className="mt-8 mb-24 max-w-2xl mx-auto px-6">
       <div className="flex space-between w-full">
@@ -127,5 +129,13 @@ export default function TermsOfService() {
         </p>
       </section>
     </main>
+  );
+}
+
+export default function BoxPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <TermsOfServiceComponent />
+    </Suspense>
   );
 }
