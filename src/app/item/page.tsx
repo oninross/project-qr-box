@@ -20,6 +20,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 import UserAvatarMenu from "@/components/UserAvatarMenu";
 import { db, storage } from "@/lib/firebase";
 
@@ -35,6 +36,13 @@ function ItemComponent() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  interface Box {
+    name?: string;
+    // Add other properties as needed
+    [key: string]: unknown;
+  }
+  const [box, setBox] = useState<Box | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const searchParams = useSearchParams();
   const boxId = searchParams.get("boxId");
@@ -43,28 +51,42 @@ function ItemComponent() {
   const router = useRouter();
 
   useEffect(() => {
-    async function fetchItem() {
-      if (!itemId) return;
+    async function fetchData() {
+      if (!itemId || !boxId) return;
+
+      setLoading(true);
       try {
-        const docRef = doc(db, "items", itemId);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          setItemName(data.name || "");
-          setItemDescription(data.description || "");
-          setItemImage(data.image || null);
-          setInitialItemName(data.name || "");
-          setInitialItemDescription(data.description || "");
-          setInitialItemImage(data.image || null);
+        // Fetch item data
+        const itemDocRef = doc(db, "items", itemId);
+        const itemDocSnap = await getDoc(itemDocRef);
+        if (itemDocSnap.exists()) {
+          const itemData = itemDocSnap.data();
+          setItemName(itemData.name || "");
+          setItemDescription(itemData.description || "");
+          setItemImage(itemData.image || null);
+          setInitialItemName(itemData.name || "");
+          setInitialItemDescription(itemData.description || "");
+          setInitialItemImage(itemData.image || null);
         } else {
           setError("Item not found.");
         }
-      } catch {
+
+        // Fetch box data for breadcrumbs
+        const boxDocRef = doc(db, "boxes", boxId);
+        const boxDocSnap = await getDoc(boxDocRef);
+        if (boxDocSnap.exists()) {
+          setBox(boxDocSnap.data());
+        }
+      } catch (err) {
+        console.error("Error fetching data:", err);
         toast.error("Failed to fetch item details.");
+      } finally {
+        setLoading(false);
       }
     }
-    fetchItem();
-  }, [itemId]);
+
+    fetchData();
+  }, [itemId, boxId]);
 
   const handleSave = useCallback(
     async (e: React.FormEvent) => {
@@ -182,11 +204,15 @@ function ItemComponent() {
     <RequireAuth>
       <main className="mt-8 mb-24 w-full m-auto max-w-2xl px-6">
         <div className="flex space-between w-full">
-          <h1 className="text-4xl mr-auto font-bold">Item Details</h1>
+          {itemName ? (
+            <h1 className="text-4xl mr-auto font-bold">{itemName}</h1>
+          ) : (
+            <Skeleton className="border mb-4 h-8 w-1/2 mr-auto" />
+          )}
           <UserAvatarMenu size={48} />
         </div>
 
-        <Breadcrumbs />
+        <Breadcrumbs boxName={box?.name} itemName={itemName} isLoading={loading} />
 
         <form className="mt-8" onSubmit={handleSave}>
           <div className="flex flex-col gap-2">

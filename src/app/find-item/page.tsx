@@ -92,7 +92,8 @@ function FindItemComponent() {
     <RequireAuth>
       <iframe
         src="/ar-viewer.html"
-        title="AR Viewer"
+        allow="camera *; microphone *; fullscreen *; autoplay *; encrypted-media *; gyroscope *; accelerometer *; magnetometer *"
+        sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-popups allow-presentation allow-top-navigation-by-user-activation"
         style={{
           width: "100vw",
           height: "100vh",
@@ -102,7 +103,6 @@ function FindItemComponent() {
           overflow: "hidden",
           display: "block",
         }}
-        allow="camera; fullscreen"
       />
     </RequireAuth>
   );

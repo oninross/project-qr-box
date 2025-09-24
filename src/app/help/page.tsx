@@ -1,7 +1,9 @@
+import { Suspense } from "react";
+
 import Breadcrumbs from "@/components/Breadcrumbs";
 import UserAvatarMenu from "@/components/UserAvatarMenu";
 
-export default function Help() {
+function HelpComponent() {
   return (
     <main className="mt-8 mb-24 max-w-2xl mx-auto px-6">
       <div className="flex space-between w-full">
@@ -136,5 +138,13 @@ export default function Help() {
         </p>
       </section>
     </main>
+  );
+}
+
+export default function HelpPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <HelpComponent />
+    </Suspense>
   );
 }

@@ -8,6 +8,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { toast } from "sonner";
 
 import BoxSearch from "@/components/BoxSearch";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import UserAvatarMenu from "@/components/UserAvatarMenu";
 import { auth, db } from "@/lib/firebase";
@@ -31,13 +32,13 @@ function SearchComponent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const searchTerm = searchParams.get("query")?.trim() || "";
-  const [user, loadingUser] = useAuthState(auth); // <-- use the hook
+  const [user, loadingUser] = useAuthState(auth);
   const [results, setResults] = useState<Item[]>([]);
   const [boxesMap, setBoxesMap] = useState<Record<string, Box>>({});
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (loadingUser || !user || !searchTerm) return; // <-- wait for user to load
+    if (loadingUser || !user || !searchTerm) return;
 
     const fetchResults = async () => {
       setLoading(true);
@@ -64,10 +65,12 @@ function SearchComponent() {
         return;
       }
 
-      // Search for relevant items in all user's boxes
-      const itemsSnap = await getDocs(query(collection(db, "items"), where("boxId", "in", boxIds)));
+      // Search for relevant items for the current user
+      const itemsSnap = await getDocs(
+        query(collection(db, "items"), where("userId", "==", user.uid))
+      );
 
-      // Filter items by name relevance (case-insensitive substring match)
+      // Filter items by boxId and name relevance
       const foundItems: Item[] = itemsSnap.docs
         .map((doc) => {
           const data = doc.data();
@@ -79,7 +82,12 @@ function SearchComponent() {
             ...data,
           };
         })
-        .filter((item) => item.name && item.name.toLowerCase().includes(searchTerm.toLowerCase()));
+        .filter(
+          (item) =>
+            boxIds.includes(item.boxId) && // Item is in user's box
+            item.name &&
+            item.name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
 
       setResults(foundItems);
       setLoading(false);
@@ -90,7 +98,7 @@ function SearchComponent() {
     };
 
     fetchResults();
-  }, [user, searchTerm, loadingUser]); // <-- include loadingUser
+  }, [user, searchTerm, loadingUser]);
 
   return (
     <main className="max-w-2xl mx-auto px-4 py-8">
@@ -110,10 +118,7 @@ function SearchComponent() {
             return (
               <Card
                 key={item.id}
-                className="flex flex-row mb-4 items-center gap-4 p-4 cursor-pointer rounded-sm hover:shadow-lg transition w-full"
-                onClick={() =>
-                  box ? router.push(`/find-item?boxId=${box.id}&itemId=${item.id}`) : undefined
-                }
+                className="flex flex-row mb-4 items-center gap-4 p-4 rounded-sm shadow-sm w-full"
               >
                 {item.image && (
                   <Image
@@ -127,7 +132,7 @@ function SearchComponent() {
                   />
                 )}
 
-                <CardContent>
+                <CardContent className="flex-1">
                   <p className="font-semibold">{item.name}</p>
 
                   {box && (
@@ -136,6 +141,29 @@ function SearchComponent() {
                     </p>
                   )}
                 </CardContent>
+
+                <div className="flex flex-col gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      box && router.push(`/box?boxId=${box.id}&boxCode=${box.boxCode}`)
+                    }
+                    disabled={!box}
+                  >
+                    View in box
+                  </Button>
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={() =>
+                      box && router.push(`/find-item?boxId=${box.id}&itemId=${item.id}`)
+                    }
+                    disabled={!box}
+                  >
+                    Find Box
+                  </Button>
+                </div>
               </Card>
             );
           })}

@@ -138,17 +138,15 @@ export default function AddBox() {
           qrCodeUrl: qrCodeUrl,
         });
 
-        console.log("Document written with ID: ", realBoxId);
-
         toast.success("Box created successfully!");
-        // setTimeout(() => {
-        //   router.push(`/box?boxId=${realBoxId}&boxCode=${boxCode}`);
-        // }, 1500);
+        setTimeout(() => {
+          router.push(`/box?boxId=${realBoxId}&boxCode=${boxCode}`);
+        }, 200);
       } catch (err) {
         console.error("AddBox error:", err);
         toast.error("Failed to save box. Please try again.");
-      } finally {
         setSaving(false);
+      } finally {
       }
     },
     [boxName, boxDescription, router]

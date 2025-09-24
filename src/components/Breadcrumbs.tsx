@@ -1,13 +1,29 @@
 "use client";
+
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "@/lib/firebase";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export default function Breadcrumbs() {
+interface BreadcrumbsProps {
+  boxName?: string;
+  itemName?: string;
+  isLoading?: boolean;
+}
+
+export default function Breadcrumbs({ boxName, itemName, isLoading = false }: BreadcrumbsProps) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const segments = pathname.split("/").filter(Boolean);
   const [user] = useAuthState(auth);
+
+  // Get query params for building links
+  const boxId = searchParams.get("boxId");
+  const boxCode = searchParams.get("boxCode");
+
+  // Check if we're on an item page
+  const isItemPage = pathname === "/item";
 
   return (
     <nav aria-label="Breadcrumb" className="mb-4 text-sm text-gray-500">
@@ -24,16 +40,65 @@ export default function Breadcrumbs() {
           )}
         </li>
 
+        {/* If on item page, manually add box breadcrumb */}
+        {isItemPage && (
+          <li className="flex items-center">
+            <span className="mx-2">/</span>
+            {isLoading ? (
+              <Skeleton className="h-4 w-24" />
+            ) : (
+              <Link
+                href={boxId && boxCode ? `/box?boxId=${boxId}&boxCode=${boxCode}` : "/storage-hub"}
+                className="hover:underline"
+              >
+                {boxName || "Box"}
+              </Link>
+            )}
+          </li>
+        )}
+
         {segments.map((seg, idx) => {
           const href = "/" + segments.slice(0, idx + 1).join("/");
-          const label = seg.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
+          let label = seg.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
+          let linkHref = href;
+
+          // Handle box segment (for /box pages)
+          if (seg === "box") {
+            if (isLoading) {
+              return (
+                <li key={href} className="flex items-center">
+                  <span className="mx-2">/</span>
+                  <Skeleton className="h-4 w-24" />
+                </li>
+              );
+            } else if (boxName) {
+              label = boxName;
+              // Build proper box link with query params
+              linkHref = boxId && boxCode ? `/box?boxId=${boxId}&boxCode=${boxCode}` : href;
+            }
+          }
+
+          // Handle item segment
+          if (seg === "item") {
+            if (isLoading) {
+              return (
+                <li key={href} className="flex items-center">
+                  <span className="mx-2">/</span>
+                  <Skeleton className="h-4 w-32" />
+                </li>
+              );
+            } else if (itemName) {
+              label = itemName;
+            }
+          }
+
           return (
             <li key={href} className="flex items-center">
               <span className="mx-2">/</span>
               {idx === segments.length - 1 ? (
                 <span className="font-semibold">{label}</span>
               ) : (
-                <Link href={href} className="hover:underline">
+                <Link href={linkHref} className="hover:underline">
                   {label}
                 </Link>
               )}

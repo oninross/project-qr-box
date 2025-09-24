@@ -204,13 +204,18 @@ function BoxComponent() {
     <RequireAuth>
       <main className="mt-8 mb-24 w-full m-auto max-w-2xl px-6">
         <div className="flex space-between w-full">
-          <h1 className="text-4xl mr-auto font-bold">{box?.name ? box?.name : "..."}</h1>
+          {box?.name ? (
+            <h1 className="text-4xl mr-auto font-bold">{box?.name}</h1>
+          ) : (
+            <Skeleton className="border mb-4 h-8 w-1/2 mr-auto" />
+          )}
+
           <UserAvatarMenu size={48} />
         </div>
 
         {error && <p className="text-red-600 mb-4">{error}</p>}
 
-        <Breadcrumbs />
+        <Breadcrumbs boxName={box?.name} isLoading={loading} />
 
         {/* About Box Accordion styled as a Card */}
         <Card className="mb-6 p-0 cursor-pointer rounded-sm hover:shadow-lg transition w-full">

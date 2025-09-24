@@ -1,7 +1,17 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Add these CORS and permission headers -->
+    <meta
+      http-equiv="Permissions-Policy"
+      content="camera=*, microphone=*, fullscreen=*, autoplay=*, encrypted-media=*, gyroscope=*, accelerometer=*, magnetometer=*"
+    />
+    <meta http-equiv="Cross-Origin-Embedder-Policy" content="unsafe-none" />
+    <meta http-equiv="Cross-Origin-Opener-Policy" content="unsafe-none" />
+
     <title>AR Viewer</title>
 
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
@@ -59,11 +69,28 @@
     <script>
       window.addEventListener("DOMContentLoaded", function () {
         var patt = sessionStorage.getItem("arjs-patt");
+
         if (patt) {
           var marker = document.getElementById("dynamic-marker");
           marker.setAttribute("url", patt);
+        } else {
+          console.error("No pattern found in sessionStorage :::");
         }
       });
+
+      // Add error handling
+      window.addEventListener("error", function (e) {
+        console.error("AR Viewer Error:", e.error, e.message, e.filename, e.lineno);
+      });
+
+      window.addEventListener("unhandledrejection", function (e) {
+        console.error("AR Viewer Promise Rejection:", e.reason);
+      });
+
+      // Check cross-origin context
+      console.log("AR Viewer loaded in iframe:", window !== window.parent);
+      console.log("Origin:", window.location.origin);
+      console.log("Parent origin:", document.referrer);
     </script>
   </body>
 </html>
