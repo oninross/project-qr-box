@@ -3,11 +3,10 @@
     "origin": [
       "http://localhost:3000",
       "https://qr-bodega.vercel.app",
-      "https://dev-qr-bodega.vercel.app",
-      "https://*.vercel.app"
+      "https://dev-qr-bodega.vercel.app"
     ],
-    "method": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    "method": ["GET"],
     "maxAgeSeconds": 3600,
-    "responseHeader": ["Content-Type", "x-goog-meta-*"]
+    "responseHeader": ["Content-Type"]
   }
 ]
