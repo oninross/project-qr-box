@@ -80,7 +80,7 @@ function WhatIsBodegaComponent() {
   );
 }
 
-export default function PrivacyPolicyPage() {
+export default function WhatIsBodegaPage() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <WhatIsBodegaComponent />
