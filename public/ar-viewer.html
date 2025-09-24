@@ -2,6 +2,11 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      http-equiv="Permissions-Policy"
+      content="camera=*, microphone=*, display-capture=*, fullscreen=*"
+    />
     <title>AR Viewer</title>
 
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
@@ -59,11 +64,10 @@
     <script>
       window.addEventListener("DOMContentLoaded", function () {
         var patt = sessionStorage.getItem("arjs-patt");
-        console.log("Pattern URL :::", patt); // Add this line
+
         if (patt) {
           var marker = document.getElementById("dynamic-marker");
           marker.setAttribute("url", patt);
-          console.log("Pattern set successfully :::"); // Add this line
         } else {
           console.error("No pattern found in sessionStorage :::");
         }
