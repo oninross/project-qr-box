@@ -1,9 +1,10 @@
 import { CircleCheckBig } from "lucide-react";
 import Link from "next/link";
+import { Suspense } from "react";
 
 import Breadcrumbs from "@/components/Breadcrumbs";
 
-export default function WhatIsBodega() {
+function WhatIsBodegaComponent() {
   return (
     <main className="mt-8 mb-24 max-w-2xl mx-auto px-6">
       <div className="flex space-between w-full">
@@ -76,5 +77,13 @@ export default function WhatIsBodega() {
         </Link>
       </section>
     </main>
+  );
+}
+
+export default function PrivacyPolicyPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <WhatIsBodegaComponent />
+    </Suspense>
   );
 }
